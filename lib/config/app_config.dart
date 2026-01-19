@@ -14,7 +14,7 @@ class AppConfig {
   
   // AI settings
   static const String aiModel = 'gpt-4o';
-  static const int maxTokens = 1500;
+  static const int maxTokens = 2000; // Increased for detailed image-based descriptions
   
   // Mock mode - set to true to use mock AI responses
   static bool get useMockAi => openaiApiKey.isEmpty;

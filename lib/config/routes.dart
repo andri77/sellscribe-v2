@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -8,6 +7,10 @@ import '../screens/generator/upload_screen.dart';
 import '../screens/generator/details_screen.dart';
 import '../screens/generator/results_screen.dart';
 import '../screens/history/history_screen.dart';
+import '../screens/settings/settings_screen.dart';
+import '../screens/settings/profile_edit_screen.dart';
+import '../screens/settings/payment_methods_screen.dart';
+import '../screens/settings/purchase_credits_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -18,6 +21,10 @@ class AppRoutes {
   static const String details = '/generator/details';
   static const String results = '/generator/results';
   static const String history = '/history';
+  static const String settings = '/settings';
+  static const String profileEdit = '/settings/profile';
+  static const String paymentMethods = '/settings/payment-methods';
+  static const String purchaseCredits = '/settings/purchase-credits';
   
   static GoRouter createRouter(bool isAuthenticated) {
     return GoRouter(
@@ -77,6 +84,22 @@ class AppRoutes {
         GoRoute(
           path: history,
           builder: (context, state) => const HistoryScreen(),
+        ),
+        GoRoute(
+          path: settings,
+          builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: profileEdit,
+          builder: (context, state) => const ProfileEditScreen(),
+        ),
+        GoRoute(
+          path: paymentMethods,
+          builder: (context, state) => const PaymentMethodsScreen(),
+        ),
+        GoRoute(
+          path: purchaseCredits,
+          builder: (context, state) => const PurchaseCreditsScreen(),
         ),
       ],
     );

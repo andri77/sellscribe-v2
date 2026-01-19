@@ -155,6 +155,33 @@ class AuthProvider extends ChangeNotifier {
     await _loadUserProfile();
     notifyListeners();
   }
+
+  // Update profile
+  Future<void> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? mobile,
+    String? address,
+    String? city,
+    String? state,
+    String? zipCode,
+    String? country,
+  }) async {
+    await _authService.updateProfile(
+      firstName: firstName,
+      lastName: lastName,
+      mobile: mobile,
+      address: address,
+      city: city,
+      state: state,
+      zipCode: zipCode,
+      country: country,
+    );
+    await refreshProfile();
+  }
+
+  // Convenience getter for user
+  UserProfile? get user => _userProfile;
   
   // Deduct credits
   Future<bool> deductCredits(int amount) async {

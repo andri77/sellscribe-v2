@@ -5,6 +5,7 @@ import 'config/routes.dart';
 import 'config/theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/listing_provider.dart';
+import 'providers/theme_provider.dart';
 import 'services/supabase_service.dart';
 
 void main() async {
@@ -30,15 +31,18 @@ class SellScribeApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ListingProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
+      child: Consumer2<AuthProvider, ThemeProvider>(
+        builder: (context, authProvider, themeProvider, _) {
           final router = AppRoutes.createRouter(authProvider.isAuthenticated);
-          
+
           return MaterialApp.router(
             title: AppConfig.appName,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.materialThemeMode,
             routerConfig: router,
           );
         },

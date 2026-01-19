@@ -88,7 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(Icons.person, color: Colors.white, size: 20),
             ),
             onSelected: (value) async {
-              if (value == 'logout') {
+              if (value == 'settings') {
+                context.push(AppRoutes.settings);
+              } else if (value == 'logout') {
                 await context.read<AuthProvider>().signOut();
                 if (mounted) {
                   context.go(AppRoutes.login);
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          auth.userProfile?.displayName ?? 'User',
+                          auth.user?.fullName ?? 'User',
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
@@ -120,6 +122,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, size: 18, color: AppTheme.textSecondary),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
               const PopupMenuItem(
                 value: 'logout',
                 child: Row(

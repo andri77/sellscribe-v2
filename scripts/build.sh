@@ -148,7 +148,7 @@ fi
 print_info "Building for web (release mode)..."
 echo ""
 
-flutter build web --release --web-renderer canvaskit
+flutter build web --release
 
 print_success "Build complete!"
 
