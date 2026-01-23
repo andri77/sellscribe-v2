@@ -1,0 +1,24 @@
+# Playwright Test Framework Requirements
+# =======================================
+
+# Core Testing
+playwright>=1.40.0
+pytest>=8.0.0
+pytest-playwright>=0.4.4
+
+# Test Reporting
+pytest-html>=4.1.1
+allure-pytest>=2.13.2
+pytest-xdist>=3.5.0  # Parallel execution
+
+# Configuration & Utilities
+python-dotenv>=1.0.0
+faker>=22.0.0  # Test data generation
+
+# Optional - API Testing
+requests>=2.31.0
+
+# Optional - Additional Features
+pytest-timeout>=2.2.0  # Test timeouts
+pytest-rerunfailures>=13.0  # Retry failed tests
+pytest-ordering>=0.6  # Test ordering
