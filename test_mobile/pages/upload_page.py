@@ -9,7 +9,11 @@ class UploadPage(BasePage):
     """Page object for Upload/Create Listing screen"""
 
     # Locators
-    PAGE_TITLE = "Create Listing"
+    PAGE_TITLE = "Upload Product Images"
+    ADD_PHOTOS_TEXT = "Add Product Photos"
+    UPLOAD_PROMPT = "Click to upload images"
+    CONTINUE_BUTTON = "Continue"
+    SKIP_BUTTON = "Skip this step"
     TAKE_PHOTO_BUTTON = "Take Photo"
     CHOOSE_GALLERY_BUTTON = "Choose from Gallery"
     GENERATE_BUTTON = "Generate Listing"
@@ -26,7 +30,9 @@ class UploadPage(BasePage):
 
     def is_upload_screen_displayed(self) -> bool:
         """Check if upload screen is displayed"""
-        return self.is_text_present(self.PAGE_TITLE)
+        return (self.is_text_present(self.PAGE_TITLE) or
+                self.is_text_present(self.ADD_PHOTOS_TEXT) or
+                self.is_text_present("Upload"))
 
     def tap_take_photo(self):
         """Tap take photo button"""

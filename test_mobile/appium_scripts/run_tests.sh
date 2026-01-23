@@ -31,6 +31,8 @@ HTML_REPORT=false
 ALLURE_REPORT=false
 VERBOSE="-v"
 RERUNS=0
+HEADLESS=false
+START_EMULATOR=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -71,6 +73,14 @@ while [[ $# -gt 0 ]]; do
             VERBOSE="-v -s --log-cli-level=DEBUG"
             shift
             ;;
+        --headless)
+            HEADLESS=true
+            shift
+            ;;
+        --start-emulator)
+            START_EMULATOR=true
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -84,6 +94,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --reruns N          Retry failed tests N times"
             echo "  -q, --quiet         Quiet output"
             echo "  --debug             Enable debug logging"
+            echo "  --headless          Run emulator in headless mode (no window)"
+            echo "  --start-emulator    Start emulator automatically if not running"
             echo "  -h, --help          Show this help"
             echo ""
             echo "Examples:"
@@ -92,6 +104,7 @@ while [[ $# -gt 0 ]]; do
             echo "  $0 -m smoke                  # Run smoke tests"
             echo "  $0 --platform ios            # Run on iOS"
             echo "  $0 -n 4 --html              # Run 4 tests parallel with HTML report"
+            echo "  $0 --start-emulator --headless -m smoke  # Run headless (CI mode)"
             exit 0
             ;;
         *)
@@ -120,13 +133,102 @@ else
     print_msg "$YELLOW" "Run install_appium.sh first"
 fi
 
+# Start emulator if requested
+if [ "$START_EMULATOR" = true ] && [ "$PLATFORM" = "android" ]; then
+    print_msg "$BLUE" "Checking Android emulator..."
+
+    # Set ANDROID_HOME if not set
+    if [ -z "$ANDROID_HOME" ]; then
+        if [ -d "$HOME/Library/Android/sdk" ]; then
+            export ANDROID_HOME="$HOME/Library/Android/sdk"
+        elif [ -d "$HOME/Android/Sdk" ]; then
+            export ANDROID_HOME="$HOME/Android/Sdk"
+        fi
+    fi
+
+    # Check if emulator is running
+    RUNNING_EMU=$($ANDROID_HOME/platform-tools/adb devices 2>/dev/null | grep "emulator-" | head -1)
+    if [ -z "$RUNNING_EMU" ]; then
+        print_msg "$YELLOW" "No emulator running. Starting emulator..."
+
+        # Get first available AVD
+        AVD_NAME=$($ANDROID_HOME/emulator/emulator -list-avds 2>/dev/null | head -1)
+        if [ -z "$AVD_NAME" ]; then
+            print_msg "$RED" "Error: No AVD found. Create one in Android Studio first."
+            exit 1
+        fi
+
+        # Start emulator (headless if requested)
+        EMU_OPTS="-no-audio"
+        if [ "$HEADLESS" = true ]; then
+            EMU_OPTS="$EMU_OPTS -no-window"
+        fi
+
+        print_msg "$BLUE" "Starting emulator: $AVD_NAME"
+        $ANDROID_HOME/emulator/emulator -avd "$AVD_NAME" $EMU_OPTS &
+
+        # Wait for emulator to start
+        print_msg "$YELLOW" "Waiting for emulator to boot..."
+        COUNTER=0
+        while [ -z "$($ANDROID_HOME/platform-tools/adb devices 2>/dev/null | grep 'emulator-')" ]; do
+            sleep 2
+            COUNTER=$((COUNTER + 2))
+            if [ $COUNTER -ge 60 ]; then
+                print_msg "$RED" "Error: Emulator failed to start"
+                exit 1
+            fi
+            echo -n "."
+        done
+        echo ""
+
+        # Wait for boot completion
+        DEVICE=$($ANDROID_HOME/platform-tools/adb devices 2>/dev/null | grep "emulator-" | cut -f1)
+        COUNTER=0
+        while [ "$($ANDROID_HOME/platform-tools/adb -s $DEVICE shell getprop sys.boot_completed 2>/dev/null)" != "1" ]; do
+            sleep 2
+            COUNTER=$((COUNTER + 2))
+            if [ $COUNTER -ge 180 ]; then
+                print_msg "$RED" "Error: Emulator boot timeout"
+                exit 1
+            fi
+            echo -n "."
+        done
+        echo ""
+        sleep 3  # Extra time for launcher
+
+        print_msg "$GREEN" "Emulator is ready!"
+
+        # Install APK if not installed
+        APP_PACKAGE="com.sellscribe.app"
+        if ! $ANDROID_HOME/platform-tools/adb -s $DEVICE shell pm list packages 2>/dev/null | grep -q "$APP_PACKAGE"; then
+            APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-debug.apk"
+            if [ -f "$APK_PATH" ]; then
+                print_msg "$BLUE" "Installing app..."
+                $ANDROID_HOME/platform-tools/adb -s $DEVICE install "$APK_PATH"
+                print_msg "$GREEN" "App installed"
+            else
+                print_msg "$YELLOW" "Warning: APK not found at $APK_PATH"
+                print_msg "$YELLOW" "Build the app first: flutter build apk --debug"
+            fi
+        fi
+    else
+        print_msg "$GREEN" "Emulator already running"
+    fi
+fi
+
 # Check if Appium is running
 if ! lsof -Pi :4723 -sTCP:LISTEN -t >/dev/null 2>&1; then
-    print_msg "$YELLOW" "Warning: Appium server doesn't appear to be running on port 4723"
-    read -p "Start Appium server? (y/n): " START_APPIUM
-    if [ "$START_APPIUM" = "y" ] || [ "$START_APPIUM" = "Y" ]; then
-        ./appium_scripts/start_appium.sh -b
+    print_msg "$YELLOW" "Appium server not running on port 4723"
+    if [ "$START_EMULATOR" = true ]; then
+        print_msg "$BLUE" "Starting Appium server..."
+        "$SCRIPT_DIR/start_appium.sh" -b
         sleep 3
+    else
+        read -p "Start Appium server? (y/n): " START_APPIUM
+        if [ "$START_APPIUM" = "y" ] || [ "$START_APPIUM" = "Y" ]; then
+            "$SCRIPT_DIR/start_appium.sh" -b
+            sleep 3
+        fi
     fi
 fi
 

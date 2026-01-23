@@ -18,39 +18,61 @@ class RegisterPage(BasePage):
 
     def enter_name(self, name: str):
         """Enter name"""
-        self.tap_by_text(self.NAME_FIELD)
-        active = self.driver.switch_to.active_element
-        active.clear()
-        active.send_keys(name)
+        import time
+        # Find EditText by hint - "Enter your name"
+        name_field = self.find_element(
+            AppiumBy.XPATH,
+            '//android.widget.EditText[contains(@hint, "your name")]'
+        )
+        name_field.click()
+        time.sleep(0.3)
+        name_field.send_keys(name)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 
     def enter_email(self, email: str):
         """Enter email address"""
-        self.tap_by_text(self.EMAIL_FIELD)
-        active = self.driver.switch_to.active_element
-        active.clear()
-        active.send_keys(email)
+        import time
+        # Find EditText by hint - "Enter your email"
+        email_field = self.find_element(
+            AppiumBy.XPATH,
+            '//android.widget.EditText[contains(@hint, "your email")]'
+        )
+        email_field.click()
+        time.sleep(0.3)
+        email_field.send_keys(email)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 
     def enter_password(self, password: str):
         """Enter password"""
-        self.tap_by_text(self.PASSWORD_FIELD)
-        active = self.driver.switch_to.active_element
-        active.clear()
-        active.send_keys(password)
+        import time
+        # Find EditText by hint - "Create a password"
+        password_field = self.find_element(
+            AppiumBy.XPATH,
+            '//android.widget.EditText[contains(@hint, "Create a password")]'
+        )
+        password_field.click()
+        time.sleep(0.3)
+        password_field.send_keys(password)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 
     def enter_confirm_password(self, password: str):
         """Enter confirm password"""
-        # Scroll down if needed
-        self.scroll_down()
-        self.tap_by_text(self.CONFIRM_PASSWORD_FIELD)
-        active = self.driver.switch_to.active_element
-        active.clear()
-        active.send_keys(password)
+        import time
+        # Find EditText by hint - "Confirm your password"
+        confirm_field = self.find_element(
+            AppiumBy.XPATH,
+            '//android.widget.EditText[contains(@hint, "Confirm your password")]'
+        )
+        confirm_field.click()
+        time.sleep(0.3)
+        confirm_field.send_keys(password)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 

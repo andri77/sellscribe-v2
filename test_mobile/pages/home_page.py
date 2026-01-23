@@ -16,7 +16,7 @@ class HomePage(BasePage):
     WELCOME_TEXT = "Welcome back"
     QUICK_ACTIONS = "Quick Actions"
     RECENT_LISTINGS = "Recent Listings"
-    PROFILE_AVATAR = "person"  # Icon identifier
+    PROFILE_MENU = "Show menu"  # Menu button content-desc
 
     def is_home_screen_displayed(self) -> bool:
         """Check if home screen is displayed"""
@@ -50,14 +50,8 @@ class HomePage(BasePage):
         return HistoryPage(self.driver)
 
     def tap_profile_menu(self):
-        """Tap profile avatar to open menu"""
-        # Find and tap the profile avatar
-        try:
-            self.find_by_content_desc("person")
-            self.tap(AppiumBy.XPATH, '//*[@content-desc="person"]')
-        except:
-            # Alternative: tap by class name or position
-            self.tap_by_text("person", timeout=3)
+        """Tap profile menu button"""
+        self.tap_by_text(self.PROFILE_MENU)
         return self
 
     def tap_settings(self):

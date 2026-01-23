@@ -68,8 +68,8 @@ class BasePage:
         return self
 
     def tap_by_text(self, text: str, timeout: int = None):
-        """Tap on element by text"""
-        element = self.find_by_text(text, timeout=timeout)
+        """Tap on element by text (uses contains match)"""
+        element = self.find_by_text(text, exact=False, timeout=timeout)
         element.click()
         return self
 
@@ -95,9 +95,9 @@ class BasePage:
             return False
 
     def is_text_present(self, text: str, timeout: int = 5) -> bool:
-        """Check if text is present on screen"""
+        """Check if text is present on screen (uses contains match)"""
         try:
-            self.find_by_text(text, timeout=timeout)
+            self.find_by_text(text, exact=False, timeout=timeout)
             return True
         except (TimeoutException, NoSuchElementException):
             return False

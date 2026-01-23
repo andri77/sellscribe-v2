@@ -21,27 +21,35 @@ class LoginPage(BasePage):
 
     def enter_email(self, email: str):
         """Enter email address"""
+        import time
         from appium.webdriver.common.appiumby import AppiumBy
         # Find EditText by hint
         email_field = self.find_element(
             AppiumBy.XPATH,
             f'//android.widget.EditText[contains(@hint, "email")]'
         )
+        email_field.click()
+        time.sleep(0.3)
         email_field.clear()
         email_field.send_keys(email)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 
     def enter_password(self, password: str):
         """Enter password"""
+        import time
         from appium.webdriver.common.appiumby import AppiumBy
         # Find EditText by hint
         password_field = self.find_element(
             AppiumBy.XPATH,
             f'//android.widget.EditText[contains(@hint, "password")]'
         )
+        password_field.click()
+        time.sleep(0.3)
         password_field.clear()
         password_field.send_keys(password)
+        time.sleep(0.3)
         self.hide_keyboard()
         return self
 

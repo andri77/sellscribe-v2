@@ -10,15 +10,17 @@ from pages import LoginPage, RegisterPage, HomePage
 class TestRegistration:
     """Test cases for user registration functionality"""
 
-    def test_register_screen_displayed(self, login_page):
+    def test_register_screen_displayed(self, ensure_on_login_screen):
         """Verify register screen can be accessed"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         assert register_page.is_register_screen_displayed(), \
             "Register screen should be displayed"
 
-    def test_register_with_valid_details(self, login_page, new_user):
+    def test_register_with_valid_details(self, ensure_on_login_screen, new_user):
         """Test successful registration with valid details"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.register(
@@ -35,8 +37,9 @@ class TestRegistration:
             login_page_check.is_login_screen_displayed(), \
             "Should navigate to home or login after registration"
 
-    def test_register_with_existing_email(self, login_page, test_user):
+    def test_register_with_existing_email(self, ensure_on_login_screen, test_user):
         """Test registration with already registered email"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.register(
@@ -48,8 +51,9 @@ class TestRegistration:
         assert register_page.is_error_displayed(), \
             "Error should be displayed for duplicate email"
 
-    def test_register_with_invalid_email(self, login_page):
+    def test_register_with_invalid_email(self, ensure_on_login_screen):
         """Test registration with invalid email format"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.register(
@@ -61,8 +65,9 @@ class TestRegistration:
         assert register_page.is_error_displayed(), \
             "Error should be displayed for invalid email"
 
-    def test_register_with_weak_password(self, login_page):
+    def test_register_with_weak_password(self, ensure_on_login_screen):
         """Test registration with weak password"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.register(
@@ -75,8 +80,9 @@ class TestRegistration:
             register_page.is_register_screen_displayed(), \
             "Should show error for weak password"
 
-    def test_register_with_mismatched_passwords(self, login_page):
+    def test_register_with_mismatched_passwords(self, ensure_on_login_screen):
         """Test registration with password confirmation mismatch"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.enter_name("Test User")
@@ -89,8 +95,9 @@ class TestRegistration:
             register_page.is_register_screen_displayed(), \
             "Should show error for mismatched passwords"
 
-    def test_register_with_empty_fields(self, login_page):
+    def test_register_with_empty_fields(self, ensure_on_login_screen):
         """Test registration with empty fields"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         register_page.tap_register()
@@ -99,8 +106,9 @@ class TestRegistration:
             register_page.is_register_screen_displayed(), \
             "Should show error for empty fields"
 
-    def test_navigate_back_to_login(self, login_page):
+    def test_navigate_back_to_login(self, ensure_on_login_screen):
         """Test navigation back to login from register"""
+        login_page = ensure_on_login_screen
         register_page = login_page.tap_register_link()
 
         login_page_back = register_page.tap_login_link()

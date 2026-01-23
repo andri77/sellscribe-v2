@@ -9,8 +9,9 @@ from pages import (
 
 
 @pytest.fixture(scope="function")
-def logged_in_settings(driver, login_page, test_user):
+def logged_in_settings(driver, ensure_on_login_screen, test_user):
     """Fixture that provides settings page for logged-in user"""
+    login_page = ensure_on_login_screen
     login_page.login(test_user["email"], test_user["password"])
     home_page = HomePage(driver)
     assert home_page.is_home_screen_displayed()
@@ -23,8 +24,9 @@ def logged_in_settings(driver, login_page, test_user):
 class TestSettingsNavigation:
     """Test cases for settings navigation"""
 
-    def test_navigate_to_settings(self, driver, login_page, test_user):
+    def test_navigate_to_settings(self, driver, ensure_on_login_screen, test_user):
         """Test navigation to settings screen"""
+        login_page = ensure_on_login_screen
         login_page.login(test_user["email"], test_user["password"])
         home_page = HomePage(driver)
         settings_page = home_page.tap_settings()
@@ -185,8 +187,9 @@ class TestThemeSettings:
         assert logged_in_settings.is_settings_screen_displayed(), \
             "Should remain on settings after theme change"
 
-    def test_theme_persists_after_restart(self, driver, login_page, test_user):
+    def test_theme_persists_after_restart(self, driver, ensure_on_login_screen, test_user):
         """Test that theme setting persists after app restart"""
+        login_page = ensure_on_login_screen
         login_page.login(test_user["email"], test_user["password"])
         home_page = HomePage(driver)
         settings_page = home_page.tap_settings()

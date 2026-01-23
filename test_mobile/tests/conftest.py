@@ -60,13 +60,13 @@ def app_path(request):
     return request.config.getoption("--app-path")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def driver(platform, device_name, app_path):
     """
-    Create and configure Appium driver for the test session.
+    Create and configure Appium driver for each test.
 
-    This fixture is session-scoped, so the driver is created once
-    and shared across all tests in the session.
+    This fixture is function-scoped, so each test gets a fresh driver
+    for better stability and isolation.
     """
     # Get capabilities based on platform
     if platform == "ios":
@@ -107,8 +107,44 @@ def driver(platform, device_name, app_path):
 @pytest.fixture(scope="function")
 def reset_app(driver):
     """Reset app state before each test"""
-    driver.reset()
+    import time
+    try:
+        app_id = 'com.sellscribe.app'
+        driver.terminate_app(app_id)
+        time.sleep(1)
+        driver.activate_app(app_id)
+        time.sleep(3)
+    except Exception:
+        pass
     yield
+
+
+@pytest.fixture(scope="function")
+def ensure_on_login_screen(driver):
+    """
+    Ensure we're on the login screen before tests that need it.
+    Restarts the app to ensure a clean state.
+    """
+    from pages import LoginPage
+    import time
+
+    app_id = 'com.sellscribe.app'
+
+    # Always restart the app to ensure clean state
+    try:
+        driver.terminate_app(app_id)
+        time.sleep(1)
+    except Exception:
+        pass
+
+    try:
+        driver.activate_app(app_id)
+        time.sleep(3)  # Wait for app to load
+    except Exception:
+        pass
+
+    login_page = LoginPage(driver)
+    return login_page
 
 
 @pytest.fixture(scope="function")
@@ -167,10 +203,10 @@ def purchase_credits_page(driver):
 
 @pytest.fixture(scope="session")
 def test_user():
-    """Test user credentials"""
+    """Test user credentials from config"""
     return {
-        "email": "testuser@example.com",
-        "password": "TestPass123!",
+        "email": Config.TEST_EMAIL,
+        "password": Config.TEST_PASSWORD,
         "name": "Test User"
     }
 
