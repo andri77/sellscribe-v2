@@ -6,9 +6,20 @@
 # This script:
 # 1. Starts the Flutter web server in the background
 # 2. Waits for the server to be available
-# 3. Runs all Playwright tests in Chrome (visible browser)
+# 3. Runs Playwright tests (headless by default)
 # 4. Generates HTML test report
 # 5. Stops the server when done
+#
+# Usage:
+#   ./scripts/launch_and_test.sh [options]
+#
+# Options:
+#   --headless      Run tests in headless mode (default)
+#   --headed        Run tests with visible browser
+#   --smoke         Run only smoke tests
+#   --test FILE     Run specific test file (e.g., test_login.py)
+#   --keep-server   Don't stop server after tests
+#   --help          Show this help message
 # =============================================================================
 
 set -e
@@ -26,11 +37,73 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_WEB_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(dirname "$TEST_WEB_DIR")"
 
-# Configuration
+# Configuration defaults
 PORT=8080
 BASE_URL="http://localhost:$PORT"
-MAX_WAIT_TIME=120  # Maximum seconds to wait for server
+MAX_WAIT_TIME=120
 FLUTTER_PID=""
+HEADLESS="true"
+TEST_MARKER=""
+TEST_FILE="tests/"
+KEEP_SERVER="false"
+
+# Test credentials (can be overridden by .env)
+export TEST_USER_EMAIL="${TEST_USER_EMAIL:-keilor.downs.pic@gmail.com}"
+export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-Set12345}"
+
+# =============================================================================
+# Parse Arguments
+# =============================================================================
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --headless)
+            HEADLESS="true"
+            shift
+            ;;
+        --headed)
+            HEADLESS="false"
+            shift
+            ;;
+        --smoke)
+            TEST_MARKER="-m smoke"
+            shift
+            ;;
+        --test)
+            TEST_FILE="tests/$2"
+            shift 2
+            ;;
+        --keep-server)
+            KEEP_SERVER="true"
+            shift
+            ;;
+        --help)
+            echo "SellScribe Test Runner"
+            echo ""
+            echo "Usage: ./scripts/launch_and_test.sh [options]"
+            echo ""
+            echo "Options:"
+            echo "  --headless      Run tests in headless mode (default)"
+            echo "  --headed        Run tests with visible browser"
+            echo "  --smoke         Run only smoke tests"
+            echo "  --test FILE     Run specific test file (e.g., test_login.py)"
+            echo "  --keep-server   Don't stop server after tests"
+            echo "  --help          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./scripts/launch_and_test.sh                    # Run all tests headless"
+            echo "  ./scripts/launch_and_test.sh --headed           # Run with visible browser"
+            echo "  ./scripts/launch_and_test.sh --test test_login.py  # Run login tests only"
+            echo "  ./scripts/launch_and_test.sh --smoke --headed   # Run smoke tests with browser"
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $1${NC}"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
 
 # =============================================================================
 # Helper Functions
@@ -63,6 +136,11 @@ print_info() {
 cleanup() {
     echo ""
     print_info "Cleaning up..."
+
+    if [ "$KEEP_SERVER" = "true" ]; then
+        print_info "Keeping server running (--keep-server flag)"
+        return
+    fi
 
     # Kill Flutter process if running
     if [ -n "$FLUTTER_PID" ] && kill -0 "$FLUTTER_PID" 2>/dev/null; then
@@ -104,6 +182,25 @@ wait_for_server() {
 # =============================================================================
 
 print_header "SellScribe Test Runner"
+
+# Load .env file if exists
+if [ -f "$TEST_WEB_DIR/.env" ]; then
+    # Parse .env file, ignoring comments and empty lines
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "$key" ]] && continue
+        # Remove inline comments and trim whitespace
+        value="${value%%#*}"
+        value="${value%"${value##*[![:space:]]}"}"
+        key="${key%"${key##*[![:space:]]}"}"
+        # Export if key is valid
+        if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+            export "$key=$value"
+        fi
+    done < "$TEST_WEB_DIR/.env"
+    print_success "Loaded configuration from .env"
+fi
 
 # Step 1: Check if server is already running
 print_info "Checking if server is already running on port $PORT..."
@@ -169,22 +266,40 @@ mkdir -p reports/videos
 # Generate timestamp for report
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-# Run tests with Chrome (not headless), generate HTML report
-print_info "Running tests in Chrome browser..."
+# Build pytest command
+PYTEST_ARGS="-v"
+PYTEST_ARGS="$PYTEST_ARGS --browser-type=chromium"
+PYTEST_ARGS="$PYTEST_ARGS --base-url=$BASE_URL"
+PYTEST_ARGS="$PYTEST_ARGS --html=reports/report_${TIMESTAMP}.html"
+PYTEST_ARGS="$PYTEST_ARGS --self-contained-html"
+
+if [ "$HEADLESS" = "true" ]; then
+    PYTEST_ARGS="$PYTEST_ARGS --headless"
+fi
+
+if [ -n "$TEST_MARKER" ]; then
+    PYTEST_ARGS="$PYTEST_ARGS $TEST_MARKER"
+fi
+
+# Display test configuration
 echo ""
 echo "Test Configuration:"
-echo "  Browser:    chromium"
-echo "  Headless:   false"
-echo "  Base URL:   $BASE_URL"
-echo "  Report:     reports/report_${TIMESTAMP}.html"
+echo "  Browser:      chromium"
+echo "  Headless:     $HEADLESS"
+echo "  Base URL:     $BASE_URL"
+echo "  Test File:    $TEST_FILE"
+echo "  Test User:    $TEST_USER_EMAIL"
+echo "  Report:       reports/report_${TIMESTAMP}.html"
+if [ -n "$TEST_MARKER" ]; then
+    echo "  Marker:       $TEST_MARKER"
+fi
 echo ""
 
-pytest tests/ -v \
-    --browser-type=chromium \
-    --base-url="$BASE_URL" \
-    --html="reports/report_${TIMESTAMP}.html" \
-    --self-contained-html \
-    2>&1
+# Run tests
+print_info "Running tests..."
+echo ""
+
+pytest $TEST_FILE $PYTEST_ARGS 2>&1
 
 TEST_EXIT_CODE=$?
 
