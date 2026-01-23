@@ -7,12 +7,35 @@ from typing import Generator
 import os
 import sys
 from datetime import datetime
+import urllib.request
+import urllib.error
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pages import LoginPage, RegisterPage, HomePage
 from config.config import Config
+
+
+def is_server_available(url: str, timeout: int = 5) -> bool:
+    """Check if the server is available"""
+    try:
+        urllib.request.urlopen(url, timeout=timeout)
+        return True
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError):
+        return False
+
+
+# Global flag to track server availability
+_server_available = None
+
+
+def get_server_status(base_url: str) -> bool:
+    """Get cached server status"""
+    global _server_available
+    if _server_available is None:
+        _server_available = is_server_available(base_url)
+    return _server_available
 
 
 def pytest_addoption(parser):
@@ -36,12 +59,7 @@ def pytest_addoption(parser):
         type=int,
         help="Slow down execution by specified milliseconds"
     )
-    parser.addoption(
-        "--base-url",
-        action="store",
-        default=None,
-        help="Base URL for the application"
-    )
+    # Note: --base-url is already provided by pytest-playwright plugin
 
 
 @pytest.fixture(scope="session")
@@ -65,10 +83,25 @@ def slow_mo(request) -> int:
 @pytest.fixture(scope="session")
 def base_url(request) -> str:
     """Get base URL from command line or config"""
-    url = request.config.getoption("--base-url")
-    if url:
-        return url
+    # Try to get from pytest-playwright's --base-url option
+    try:
+        url = request.config.getoption("--base-url")
+        if url:
+            return url
+    except ValueError:
+        pass
     return Config.BASE_URL
+
+
+@pytest.fixture(scope="session", autouse=True)
+def check_server_availability(base_url: str):
+    """Check if server is available and skip all tests if not"""
+    if not get_server_status(base_url):
+        pytest.skip(
+            f"Server not available at {base_url}. "
+            "Start the web application or provide a valid --base-url",
+            allow_module_level=True
+        )
 
 
 @pytest.fixture(scope="session")
