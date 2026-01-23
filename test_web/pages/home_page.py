@@ -8,13 +8,13 @@ from .base_page import BasePage
 class HomePage(BasePage):
     """Page object for Home/Dashboard screen"""
 
-    # Selectors
-    CREATE_LISTING_BUTTON = "[data-testid='create-listing'], button:has-text('Create Listing'), a:has-text('Create Listing'), button:has-text('New Listing')"
+    # Selectors - Flutter web uses flt-semantics elements with roles and text content
+    CREATE_LISTING_BUTTON = "flt-semantics[role='button']:has-text('Create Listing'), flt-semantics[role='button']:has-text('New Listing'), [data-testid='create-listing'], button:has-text('Create Listing')"
     CREDITS_DISPLAY = "[data-testid='credits-display'], .credits, [class*='credit']"
-    HISTORY_LINK = "[data-testid='history-link'], a:has-text('History'), button:has-text('History'), a:has-text('My Listings')"
-    SETTINGS_LINK = "[data-testid='settings-link'], a:has-text('Settings'), button:has-text('Settings'), [aria-label='Settings']"
-    PROFILE_MENU = "[data-testid='profile-menu'], .profile-menu, [aria-label='Profile']"
-    SIGN_OUT_BUTTON = "[data-testid='sign-out'], button:has-text('Sign Out'), a:has-text('Sign Out'), button:has-text('Logout')"
+    HISTORY_LINK = "flt-semantics[role='button']:has-text('History'), flt-semantics[role='link']:has-text('History'), [data-testid='history-link'], a:has-text('History')"
+    SETTINGS_LINK = "flt-semantics[role='button']:has-text('Settings'), [data-testid='settings-link'], a:has-text('Settings')"
+    PROFILE_MENU = "flt-semantics[role='button']:has-text('Profile'), [data-testid='profile-menu'], [aria-label='Profile']"
+    SIGN_OUT_BUTTON = "flt-semantics[role='button']:has-text('Sign Out'), flt-semantics[role='button']:has-text('Logout'), [data-testid='sign-out'], button:has-text('Sign Out')"
     WELCOME_MESSAGE = "[data-testid='welcome-message'], .welcome, h1:has-text('Welcome'), h2:has-text('Welcome')"
     QUICK_ACTIONS = "[data-testid='quick-actions'], .quick-actions, section:has-text('Quick Actions')"
     RECENT_LISTINGS = "[data-testid='recent-listings'], .recent-listings, section:has-text('Recent')"
@@ -29,7 +29,24 @@ class HomePage(BasePage):
         """Navigate to home page"""
         self.navigate(self.home_url)
         self.wait_for_load_state()
+        self._enable_flutter_accessibility()
         return self
+
+    def _enable_flutter_accessibility(self) -> None:
+        """Enable Flutter web accessibility mode if needed"""
+        try:
+            placeholder = self.page.query_selector("flt-semantics-placeholder")
+            if placeholder:
+                self.page.evaluate('''() => {
+                    const elem = document.querySelector("flt-semantics-placeholder");
+                    if (elem) {
+                        elem.focus();
+                        elem.click();
+                    }
+                }''')
+                self.page.wait_for_timeout(1000)
+        except Exception:
+            pass  # Accessibility may already be enabled
 
     def is_home_screen_displayed(self) -> bool:
         """Check if home screen is displayed"""

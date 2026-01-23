@@ -8,12 +8,13 @@ from .base_page import BasePage
 class LoginPage(BasePage):
     """Page object for Login screen"""
 
-    # Selectors - using data-testid, aria-label, or stable attributes
-    EMAIL_INPUT = "[data-testid='email-input'], input[type='email'], input[name='email'], input[placeholder*='email' i]"
-    PASSWORD_INPUT = "[data-testid='password-input'], input[type='password'], input[name='password'], input[placeholder*='password' i]"
-    LOGIN_BUTTON = "[data-testid='login-button'], button[type='submit']:has-text('Sign In'), button:has-text('Log In'), button:has-text('Login')"
-    REGISTER_LINK = "[data-testid='register-link'], a:has-text('Sign Up'), a:has-text('Register'), a:has-text('Create Account')"
-    FORGOT_PASSWORD_LINK = "[data-testid='forgot-password'], a:has-text('Forgot'), a:has-text('Reset')"
+    # Selectors - Flutter web uses ARIA labels after accessibility is enabled
+    # Primary selectors use aria-label (Flutter), fallback to standard HTML for non-Flutter
+    EMAIL_INPUT = "input[aria-label*='email' i], input[aria-label*='Email' i], [data-testid='email-input'], input[type='email']"
+    PASSWORD_INPUT = "input[aria-label*='password' i], input[aria-label*='Password' i], [data-testid='password-input'], input[type='password']"
+    LOGIN_BUTTON = "flt-semantics[role='button']:has-text('Sign In'), [data-testid='login-button'], button:has-text('Sign In')"
+    REGISTER_LINK = "flt-semantics[role='button']:has-text('Sign up'), [data-testid='register-link'], a:has-text('Sign Up')"
+    FORGOT_PASSWORD_LINK = "flt-semantics[role='button']:has-text('Forgot'), [data-testid='forgot-password'], a:has-text('Forgot')"
     ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']"
     REMEMBER_ME = "[data-testid='remember-me'], input[type='checkbox'][name*='remember']"
 
@@ -26,7 +27,24 @@ class LoginPage(BasePage):
         """Navigate to login page"""
         self.navigate(self.login_url)
         self.wait_for_load_state()
+        self._enable_flutter_accessibility()
         return self
+
+    def _enable_flutter_accessibility(self) -> None:
+        """Enable Flutter web accessibility mode if needed"""
+        try:
+            placeholder = self.page.query_selector("flt-semantics-placeholder")
+            if placeholder:
+                self.page.evaluate('''() => {
+                    const elem = document.querySelector("flt-semantics-placeholder");
+                    if (elem) {
+                        elem.focus();
+                        elem.click();
+                    }
+                }''')
+                self.page.wait_for_timeout(1000)
+        except Exception:
+            pass  # Accessibility may already be enabled
 
     def is_login_screen_displayed(self) -> bool:
         """Check if login screen is displayed"""

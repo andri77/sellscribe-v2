@@ -12,7 +12,7 @@ class Config:
     """Configuration class for test settings"""
 
     # Base URL - Update this to your SellScribe web application URL
-    BASE_URL = os.getenv("BASE_URL", "http://localhost:3000")
+    BASE_URL = os.getenv("BASE_URL", "http://localhost:8080")
 
     # Test User Credentials
     TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL", "test@example.com")
@@ -42,7 +42,7 @@ class Config:
     SCREENSHOT_DIR = os.path.join(REPORT_DIR, "screenshots")
 
     # API Settings (if applicable)
-    API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:3000/api")
+    API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8080/api")
     API_TIMEOUT = int(os.getenv("API_TIMEOUT", "30000"))
 
     @classmethod

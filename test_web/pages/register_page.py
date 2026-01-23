@@ -8,15 +8,15 @@ from .base_page import BasePage
 class RegisterPage(BasePage):
     """Page object for Registration screen"""
 
-    # Selectors
-    NAME_INPUT = "[data-testid='name-input'], input[name='name'], input[placeholder*='name' i]"
-    FIRST_NAME_INPUT = "[data-testid='first-name'], input[name='firstName'], input[placeholder*='first name' i]"
-    LAST_NAME_INPUT = "[data-testid='last-name'], input[name='lastName'], input[placeholder*='last name' i]"
-    EMAIL_INPUT = "[data-testid='email-input'], input[type='email'], input[name='email'], input[placeholder*='email' i]"
-    PASSWORD_INPUT = "[data-testid='password-input'], input[type='password'][name='password'], input[placeholder*='password' i]:not([name*='confirm'])"
-    CONFIRM_PASSWORD_INPUT = "[data-testid='confirm-password'], input[name='confirmPassword'], input[name='password_confirmation'], input[placeholder*='confirm' i]"
-    REGISTER_BUTTON = "[data-testid='register-button'], button[type='submit']:has-text('Sign Up'), button:has-text('Register'), button:has-text('Create Account')"
-    LOGIN_LINK = "[data-testid='login-link'], a:has-text('Sign In'), a:has-text('Log In'), a:has-text('Already have an account')"
+    # Selectors - Flutter web uses ARIA labels after accessibility is enabled
+    NAME_INPUT = "input[aria-label*='name' i], [data-testid='name-input'], input[name='name']"
+    FIRST_NAME_INPUT = "input[aria-label*='first name' i], [data-testid='first-name'], input[name='firstName']"
+    LAST_NAME_INPUT = "input[aria-label*='last name' i], [data-testid='last-name'], input[name='lastName']"
+    EMAIL_INPUT = "input[aria-label*='email' i], [data-testid='email-input'], input[type='email']"
+    PASSWORD_INPUT = "input[aria-label='Create a password'], input[aria-label*='password' i]:not([aria-label*='confirm' i]), [data-testid='password-input']"
+    CONFIRM_PASSWORD_INPUT = "input[aria-label*='Confirm' i], [data-testid='confirm-password'], input[name='confirmPassword']"
+    REGISTER_BUTTON = "flt-semantics[role='button']:has-text('Create Account'), flt-semantics[role='button']:has-text('Sign Up'), [data-testid='register-button'], button:has-text('Create Account')"
+    LOGIN_LINK = "flt-semantics[role='button']:has-text('Sign in'), [data-testid='login-link'], a:has-text('Sign In')"
     ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']"
     SUCCESS_MESSAGE = "[data-testid='success-message'], .success, .alert-success"
     TERMS_CHECKBOX = "[data-testid='terms-checkbox'], input[name='terms'], input[name='acceptTerms']"
@@ -30,7 +30,24 @@ class RegisterPage(BasePage):
         """Navigate to register page"""
         self.navigate(self.register_url)
         self.wait_for_load_state()
+        self._enable_flutter_accessibility()
         return self
+
+    def _enable_flutter_accessibility(self) -> None:
+        """Enable Flutter web accessibility mode if needed"""
+        try:
+            placeholder = self.page.query_selector("flt-semantics-placeholder")
+            if placeholder:
+                self.page.evaluate('''() => {
+                    const elem = document.querySelector("flt-semantics-placeholder");
+                    if (elem) {
+                        elem.focus();
+                        elem.click();
+                    }
+                }''')
+                self.page.wait_for_timeout(1000)
+        except Exception:
+            pass  # Accessibility may already be enabled
 
     def is_register_screen_displayed(self) -> bool:
         """Check if register screen is displayed"""

@@ -17,6 +17,30 @@ from pages import LoginPage, RegisterPage, HomePage
 from config.config import Config
 
 
+def enable_flutter_accessibility(page) -> None:
+    """
+    Enable Flutter web accessibility mode.
+
+    Flutter web renders to canvas by default and doesn't expose DOM elements.
+    This function clicks the accessibility placeholder to enable the semantic tree,
+    which exposes ARIA elements that Playwright can interact with.
+    """
+    try:
+        placeholder = page.query_selector("flt-semantics-placeholder")
+        if placeholder:
+            page.evaluate('''() => {
+                const elem = document.querySelector("flt-semantics-placeholder");
+                if (elem) {
+                    elem.focus();
+                    elem.click();
+                }
+            }''')
+            # Wait for Flutter to render the semantic tree
+            page.wait_for_timeout(1000)
+    except Exception:
+        pass  # Accessibility may already be enabled
+
+
 def is_server_available(url: str, timeout: int = 5) -> bool:
     """Check if the server is available"""
     try:
@@ -148,9 +172,14 @@ def context(browser: Browser) -> Generator[BrowserContext, None, None]:
 
 
 @pytest.fixture(scope="function")
-def page(context: BrowserContext) -> Generator[Page, None, None]:
-    """Create page for each test"""
+def page(context: BrowserContext, base_url: str) -> Generator[Page, None, None]:
+    """Create page for each test with Flutter accessibility enabled"""
     page = context.new_page()
+    # Navigate to base URL to enable Flutter accessibility
+    page.goto(base_url)
+    page.wait_for_load_state("networkidle")
+    page.wait_for_timeout(2000)  # Wait for Flutter to fully render
+    enable_flutter_accessibility(page)
     yield page
     page.close()
 
