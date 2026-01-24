@@ -243,13 +243,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildProgressStep(int number, String label, bool isActive) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Container(
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primaryColor : Colors.grey[200],
+            color: isActive ? AppTheme.primaryColor : (isDark ? const Color(0xFF2A2A3E) : Colors.grey[200]),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -257,8 +258,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 ? const Icon(Icons.check, color: Colors.white, size: 18)
                 : Text(
                     '$number',
-                    style: const TextStyle(
-                      color: AppTheme.textMuted,
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : AppTheme.textMuted,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -269,7 +270,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isActive ? AppTheme.primaryColor : AppTheme.textMuted,
+            color: isActive ? (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor) : (isDark ? Colors.white54 : AppTheme.textMuted),
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -278,11 +279,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildProgressConnector(bool isCompleted) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         height: 2,
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        color: isCompleted ? AppTheme.primaryColor : Colors.grey[200],
+        color: isCompleted ? AppTheme.primaryColor : (isDark ? const Color(0xFF2A2A3E) : Colors.grey[200]),
       ),
     );
   }
@@ -293,6 +295,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
     required IconData icon,
     bool isHtml = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
+
     // Strip HTML for copying
     final plainText = content
         .replaceAll(RegExp(r'<[^>]*>'), '')
@@ -303,9 +309,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,14 +321,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Row(
                 children: [
-                  Icon(icon, size: 20, color: AppTheme.primaryColor),
+                  Icon(icon, size: 20, color: AppTheme.secondaryColor),
                   const SizedBox(width: 8),
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -333,20 +339,20 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   title,
                 ),
                 icon: const Icon(Icons.copy, size: 20),
-                color: AppTheme.primaryColor,
+                color: isDark ? Colors.white54 : AppTheme.primaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(),
+          Divider(color: borderColor),
           const SizedBox(height: 12),
           SelectableText(
             plainText,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: AppTheme.textPrimary,
+              color: isDark ? Colors.white : AppTheme.textPrimary,
             ),
           ),
         ],
@@ -355,15 +361,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildBulletsCard(List<String> bullets) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
     final bulletText = bullets.map((b) => '• $b').join('\n');
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,16 +380,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.format_list_bulleted, size: 20, color: AppTheme.primaryColor),
-                  SizedBox(width: 8),
+                  Icon(Icons.format_list_bulleted, size: 20, color: AppTheme.secondaryColor),
+                  const SizedBox(width: 8),
                   Text(
                     'Bullet Points',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -388,26 +397,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
               IconButton(
                 onPressed: () => _copyToClipboard(bulletText, 'Bullet points'),
                 icon: const Icon(Icons.copy, size: 20),
-                color: AppTheme.primaryColor,
+                color: isDark ? Colors.white54 : AppTheme.primaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(),
+          Divider(color: borderColor),
           const SizedBox(height: 12),
           ...bullets.map((bullet) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('•  ', style: TextStyle(color: AppTheme.primaryColor)),
+                Text('•  ', style: TextStyle(color: AppTheme.secondaryColor)),
                 Expanded(
                   child: SelectableText(
                     bullet,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textPrimary,
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -420,15 +429,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildTagsCard(List<String> tags) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
     final tagText = tags.join(', ');
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,16 +448,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.tag, size: 20, color: AppTheme.primaryColor),
-                  SizedBox(width: 8),
+                  Icon(Icons.tag, size: 20, color: AppTheme.secondaryColor),
+                  const SizedBox(width: 8),
                   Text(
                     'SEO Tags',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -453,13 +465,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
               IconButton(
                 onPressed: () => _copyToClipboard(tagText, 'Tags'),
                 icon: const Icon(Icons.copy, size: 20),
-                color: AppTheme.primaryColor,
+                color: isDark ? Colors.white54 : AppTheme.primaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(),
+          Divider(color: borderColor),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -467,14 +479,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: tags.map((tag) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.secondaryColor.withOpacity(isDark ? 0.2 : 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 tag,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppTheme.primaryColor,
+                  color: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),

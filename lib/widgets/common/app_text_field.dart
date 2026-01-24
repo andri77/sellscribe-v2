@@ -52,16 +52,19 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
+    // Always use gold icons
+    final iconColor = AppTheme.secondaryColor;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppTheme.textPrimary,
+              color: Colors.white70,
             ),
           ),
           const SizedBox(height: 8),
@@ -78,16 +81,20 @@ class _AppTextFieldState extends State<AppTextField> {
           onTap: widget.onTap,
           readOnly: widget.readOnly,
           focusNode: widget.focusNode,
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: widget.hint,
+            hintStyle: TextStyle(color: Colors.white38),
+            filled: true,
+            fillColor: AppTheme.primaryColor,
             prefixIcon: widget.prefixIcon != null
-                ? Icon(widget.prefixIcon, color: AppTheme.textMuted)
+                ? Icon(widget.prefixIcon, color: iconColor)
                 : null,
             suffixIcon: widget.obscureText
                 ? IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: AppTheme.textMuted,
+                      color: iconColor,
                     ),
                     onPressed: () {
                       setState(() {
@@ -96,6 +103,18 @@ class _AppTextFieldState extends State<AppTextField> {
                     },
                   )
                 : widget.suffix,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: const Color(0xFF2A2A3E)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: const Color(0xFF2A2A3E)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppTheme.secondaryColor, width: 2),
+            ),
           ),
         ),
       ],

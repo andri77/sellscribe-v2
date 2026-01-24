@@ -445,7 +445,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                 IconButton(
                   onPressed: onCopy,
                   icon: const Icon(Icons.copy, size: 18),
-                  color: isDark ? Colors.white54 : AppTheme.textMuted,
+                  color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted,
                   tooltip: 'Copy to clipboard',
                   visualDensity: VisualDensity.compact,
                 ),
@@ -522,9 +522,10 @@ class _EditListingScreenState extends State<EditListingScreen> {
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.category_outlined, color: isDark ? Colors.white54 : AppTheme.textMuted),
+                  prefixIcon: Icon(Icons.category_outlined, color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted),
                 ),
                 dropdownColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+                iconEnabledColor: isDark ? AppTheme.secondaryColor : null,
                 items: ProductCategory.categories.map((category) {
                   return DropdownMenuItem(value: category, child: Text(category));
                 }).toList(),
@@ -581,6 +582,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                     },
                     selectedColor: AppTheme.secondaryColor.withOpacity(isDark ? 0.3 : 0.2),
                     backgroundColor: isDark ? const Color(0xFF2A2A3E) : null,
+                    checkmarkColor: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
                     labelStyle: TextStyle(
                       color: isSelected
                           ? (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor)
@@ -614,7 +616,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: isDark ? Colors.white54 : AppTheme.textMuted),
+              Icon(Icons.info_outline, size: 18, color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted),
               const SizedBox(width: 8),
               Text(
                 'Manual edits are free',
