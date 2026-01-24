@@ -215,10 +215,10 @@ class _ListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
-    final toneBgColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFF5F3EE);
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
+    final toneBgColor = const Color(0xFF2A2A3E);
 
     return Container(
       decoration: BoxDecoration(
@@ -227,7 +227,7 @@ class _ListingCard extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -250,14 +250,14 @@ class _ListingCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: AppTheme.secondaryColor.withOpacity(0.15),
+                          color: AppTheme.secondaryColor.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           listing.category,
                           style: TextStyle(
                             fontSize: 11,
-                            color: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                            color: AppTheme.secondaryColor,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
                           ),
@@ -274,7 +274,7 @@ class _ListingCard extends StatelessWidget {
                           listing.tone.toUpperCase(),
                           style: TextStyle(
                             fontSize: 10,
-                            color: isDark ? Colors.white54 : AppTheme.textMuted,
+                            color: Colors.white54,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
@@ -288,7 +288,7 @@ class _ListingCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : AppTheme.textPrimary,
+                      color: Colors.white,
                       height: 1.3,
                     ),
                     maxLines: 2,
@@ -302,7 +302,7 @@ class _ListingCard extends StatelessWidget {
                           .replaceAll('&nbsp;', ' '),
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white70 : AppTheme.textSecondary,
+                        color: Colors.white70,
                         height: 1.5,
                       ),
                       maxLines: 3,
@@ -314,14 +314,14 @@ class _ListingCard extends StatelessWidget {
                       Icon(
                         Icons.calendar_today_outlined,
                         size: 13,
-                        color: isDark ? Colors.white54 : AppTheme.textMuted,
+                        color: AppTheme.secondaryColor,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _formatDate(listing.createdAt),
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? Colors.white54 : AppTheme.textMuted,
+                          color: Colors.white54,
                         ),
                       ),
                       if (listing.imageUrls.isNotEmpty) ...[
@@ -329,14 +329,14 @@ class _ListingCard extends StatelessWidget {
                         Icon(
                           Icons.image_outlined,
                           size: 13,
-                          color: isDark ? Colors.white54 : AppTheme.textMuted,
+                          color: AppTheme.secondaryColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '${listing.imageUrls.length}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? Colors.white54 : AppTheme.textMuted,
+                            color: Colors.white54,
                           ),
                         ),
                       ],
@@ -350,7 +350,7 @@ class _ListingCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF16161E) : const Color(0xFFFAF9F6),
+              color: const Color(0xFF16161E),
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(11)),
               border: Border(top: BorderSide(color: borderColor)),
             ),
@@ -406,15 +406,15 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Always use gold for primary, white for others
     final color = isDestructive
         ? AppTheme.errorColor
         : isPrimary
-            ? (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor)
-            : (isDark ? Colors.white70 : AppTheme.textSecondary);
+            ? AppTheme.secondaryColor
+            : Colors.white70;
 
     final bgColor = isPrimary
-        ? (isDark ? AppTheme.secondaryColor.withOpacity(0.15) : AppTheme.primaryColor.withOpacity(0.1))
+        ? AppTheme.secondaryColor.withOpacity(0.15)
         : Colors.transparent;
 
     return InkWell(

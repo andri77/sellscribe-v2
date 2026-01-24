@@ -380,7 +380,6 @@ class _EditListingScreenState extends State<EditListingScreen> {
   }
 
   Widget _buildSectionHeader(String title, IconData icon) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Container(
@@ -408,10 +407,10 @@ class _EditListingScreenState extends State<EditListingScreen> {
     String? hint,
     required VoidCallback onCopy,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final headerBg = isDark ? const Color(0xFF16161E) : const Color(0xFFFAF9F6);
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final headerBg = const Color(0xFF16161E);
+    final borderColor = const Color(0xFF2A2A3E);
 
     return Container(
       decoration: BoxDecoration(
@@ -438,14 +437,14 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppTheme.textPrimary,
+                    color: Colors.white,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: onCopy,
                   icon: const Icon(Icons.copy, size: 18),
-                  color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted,
+                  color: AppTheme.secondaryColor,
                   tooltip: 'Copy to clipboard',
                   visualDensity: VisualDensity.compact,
                 ),
@@ -460,7 +459,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
               maxLines: maxLines,
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: TextStyle(color: isDark ? Colors.white38 : AppTheme.textMuted),
+                hintStyle: TextStyle(color: Colors.white38),
                 filled: false,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -470,7 +469,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.6,
-                color: isDark ? Colors.white : AppTheme.textPrimary,
+                color: Colors.white,
               ),
               validator: (value) {
                 if (title == 'Product Title' && (value == null || value.isEmpty)) {
@@ -486,10 +485,9 @@ class _EditListingScreenState extends State<EditListingScreen> {
   }
 
   Widget _buildProductDetailsCard() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
-    final labelColor = isDark ? Colors.white70 : AppTheme.textPrimary;
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -515,17 +513,32 @@ class _EditListingScreenState extends State<EditListingScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: labelColor,
+                  color: Colors.white70,
                 ),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.category_outlined, color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted),
+                  prefixIcon: Icon(Icons.category_outlined, color: AppTheme.secondaryColor),
+                  filled: true,
+                  fillColor: AppTheme.primaryColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppTheme.secondaryColor, width: 2),
+                  ),
                 ),
-                dropdownColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-                iconEnabledColor: isDark ? AppTheme.secondaryColor : null,
+                dropdownColor: AppTheme.primaryColor,
+                iconEnabledColor: AppTheme.secondaryColor,
+                style: TextStyle(color: Colors.white),
                 items: ProductCategory.categories.map((category) {
                   return DropdownMenuItem(value: category, child: Text(category));
                 }).toList(),
@@ -560,7 +573,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: labelColor,
+                  color: Colors.white70,
                 ),
               ),
               const SizedBox(height: 8),
@@ -580,13 +593,11 @@ class _EditListingScreenState extends State<EditListingScreen> {
                         });
                       }
                     },
-                    selectedColor: AppTheme.secondaryColor.withOpacity(isDark ? 0.3 : 0.2),
-                    backgroundColor: isDark ? const Color(0xFF2A2A3E) : null,
-                    checkmarkColor: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                    selectedColor: AppTheme.secondaryColor.withOpacity(0.3),
+                    backgroundColor: const Color(0xFF2A2A3E),
+                    checkmarkColor: AppTheme.secondaryColor,
                     labelStyle: TextStyle(
-                      color: isSelected
-                          ? (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor)
-                          : (isDark ? Colors.white70 : AppTheme.textSecondary),
+                      color: isSelected ? AppTheme.secondaryColor : Colors.white70,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   );
@@ -600,9 +611,9 @@ class _EditListingScreenState extends State<EditListingScreen> {
   }
 
   Widget _buildActionsCard() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF16161E) : const Color(0xFFFAF9F6);
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+    // All cards use dark background
+    final cardBg = const Color(0xFF16161E);
+    final borderColor = const Color(0xFF2A2A3E);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -616,13 +627,13 @@ class _EditListingScreenState extends State<EditListingScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: isDark ? AppTheme.secondaryColor : AppTheme.textMuted),
+              Icon(Icons.info_outline, size: 18, color: AppTheme.secondaryColor),
               const SizedBox(width: 8),
               Text(
                 'Manual edits are free',
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? Colors.white70 : AppTheme.textSecondary,
+                  color: Colors.white70,
                 ),
               ),
             ],

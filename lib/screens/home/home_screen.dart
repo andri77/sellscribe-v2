@@ -70,9 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.secondaryColor.withOpacity(0.15),
+                  color: AppTheme.primaryColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
+                  border: Border.all(color: const Color(0xFF2A2A3E)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -292,9 +292,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
 
     return Container(
       width: double.infinity,
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppTheme.secondaryColor.withOpacity(0.15),
+              color: AppTheme.secondaryColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -325,14 +325,14 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : AppTheme.textPrimary,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Create your first AI-powered product listing',
             style: TextStyle(
-              color: isDark ? Colors.white70 : AppTheme.textSecondary,
+              color: Colors.white70,
               fontSize: 15,
             ),
           ),
@@ -375,11 +375,9 @@ class _ActionCardState extends State<_ActionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = widget.isPrimary
-        ? AppTheme.primaryColor
-        : (isDark ? const Color(0xFF1E1E2E) : Colors.white);
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -393,16 +391,12 @@ class _ActionCardState extends State<_ActionCard> {
           decoration: BoxDecoration(
             color: cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: widget.isPrimary
-                ? null
-                : Border.all(color: _isHovered ? AppTheme.secondaryColor.withOpacity(0.5) : borderColor),
+            border: Border.all(color: _isHovered ? AppTheme.secondaryColor.withOpacity(0.5) : borderColor),
             boxShadow: [
               BoxShadow(
                 color: _isHovered
-                    ? (widget.isPrimary
-                        ? AppTheme.primaryColor.withOpacity(0.3)
-                        : AppTheme.secondaryColor.withOpacity(isDark ? 0.15 : 0.08))
-                    : Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+                    ? AppTheme.secondaryColor.withOpacity(0.15)
+                    : Colors.black.withOpacity(0.1),
                 blurRadius: _isHovered ? 16 : 8,
                 offset: Offset(0, _isHovered ? 6 : 2),
               ),
@@ -418,12 +412,12 @@ class _ActionCardState extends State<_ActionCard> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: AppTheme.secondaryColor.withOpacity(widget.isPrimary ? 0.2 : 0.15),
+                  color: AppTheme.secondaryColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   widget.icon,
-                  color: widget.isPrimary ? AppTheme.secondaryColor : (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor),
+                  color: AppTheme.secondaryColor,
                   size: 26,
                 ),
               ),
@@ -433,7 +427,7 @@ class _ActionCardState extends State<_ActionCard> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: widget.isPrimary ? Colors.white : (isDark ? Colors.white : AppTheme.textPrimary),
+                  color: Colors.white,
                   letterSpacing: 0.2,
                 ),
               ),
@@ -442,9 +436,7 @@ class _ActionCardState extends State<_ActionCard> {
                 widget.description,
                 style: TextStyle(
                   fontSize: 14,
-                  color: widget.isPrimary
-                      ? Colors.white.withOpacity(0.8)
-                      : (isDark ? Colors.white70 : AppTheme.textSecondary),
+                  color: Colors.white70,
                   height: 1.4,
                 ),
               ),
@@ -499,9 +491,9 @@ class _ListingCardState extends State<_ListingCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -521,8 +513,8 @@ class _ListingCardState extends State<_ListingCard> {
             boxShadow: [
               BoxShadow(
                 color: _isHovered
-                    ? AppTheme.secondaryColor.withOpacity(isDark ? 0.15 : 0.1)
-                    : Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+                    ? AppTheme.secondaryColor.withOpacity(0.15)
+                    : Colors.black.withOpacity(0.1),
                 blurRadius: _isHovered ? 12 : 4,
                 offset: Offset(0, _isHovered ? 4 : 1),
               ),
@@ -536,14 +528,14 @@ class _ListingCardState extends State<_ListingCard> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryColor.withOpacity(0.15),
+                      color: AppTheme.secondaryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       widget.category,
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                        color: AppTheme.secondaryColor,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.3,
                       ),
@@ -554,7 +546,7 @@ class _ListingCardState extends State<_ListingCard> {
                     IconButton(
                       onPressed: () => context.go(AppRoutes.editListing, extra: widget.listingId),
                       icon: Icon(Icons.edit_outlined, size: 18),
-                      color: isDark ? Colors.white54 : AppTheme.textMuted,
+                      color: AppTheme.secondaryColor,
                       visualDensity: VisualDensity.compact,
                       tooltip: 'Edit listing',
                     ),
@@ -566,7 +558,7 @@ class _ListingCardState extends State<_ListingCard> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : AppTheme.textPrimary,
+                  color: Colors.white,
                   height: 1.3,
                 ),
                 maxLines: 2,
@@ -579,14 +571,14 @@ class _ListingCardState extends State<_ListingCard> {
                     Icon(
                       Icons.schedule,
                       size: 13,
-                      color: isDark ? Colors.white54 : AppTheme.textMuted,
+                      color: AppTheme.secondaryColor,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       _formatDate(widget.createdAt!),
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? Colors.white54 : AppTheme.textMuted,
+                        color: Colors.white54,
                       ),
                     ),
                   ],

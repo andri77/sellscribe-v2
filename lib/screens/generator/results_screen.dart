@@ -243,23 +243,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildProgressStep(int number, String label, bool isActive) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Container(
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primaryColor : (isDark ? const Color(0xFF2A2A3E) : Colors.grey[200]),
+            color: isActive ? AppTheme.primaryColor : const Color(0xFF2A2A3E),
             shape: BoxShape.circle,
           ),
           child: Center(
             child: isActive
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
+                ? Icon(Icons.check, color: AppTheme.secondaryColor, size: 18)
                 : Text(
                     '$number',
                     style: TextStyle(
-                      color: isDark ? Colors.white54 : AppTheme.textMuted,
+                      color: Colors.white54,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -270,7 +269,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isActive ? (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor) : (isDark ? Colors.white54 : AppTheme.textMuted),
+            color: isActive ? AppTheme.secondaryColor : Colors.white54,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -279,12 +278,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildProgressConnector(bool isCompleted) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         height: 2,
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        color: isCompleted ? AppTheme.primaryColor : (isDark ? const Color(0xFF2A2A3E) : Colors.grey[200]),
+        color: isCompleted ? AppTheme.primaryColor : const Color(0xFF2A2A3E),
       ),
     );
   }
@@ -295,9 +293,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
     required IconData icon,
     bool isHtml = false,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
 
     // Strip HTML for copying
     final plainText = content
@@ -328,7 +326,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : AppTheme.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -339,7 +337,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   title,
                 ),
                 icon: const Icon(Icons.copy, size: 20),
-                color: isDark ? Colors.white54 : AppTheme.primaryColor,
+                color: AppTheme.secondaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
@@ -352,7 +350,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             style: TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: isDark ? Colors.white : AppTheme.textPrimary,
+              color: Colors.white,
             ),
           ),
         ],
@@ -361,9 +359,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildBulletsCard(List<String> bullets) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
     final bulletText = bullets.map((b) => '• $b').join('\n');
 
     return Container(
@@ -389,7 +387,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : AppTheme.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -397,7 +395,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               IconButton(
                 onPressed: () => _copyToClipboard(bulletText, 'Bullet points'),
                 icon: const Icon(Icons.copy, size: 20),
-                color: isDark ? Colors.white54 : AppTheme.primaryColor,
+                color: AppTheme.secondaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
@@ -416,7 +414,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     bullet,
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.white : AppTheme.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -429,9 +427,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildTagsCard(List<String> tags) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2A2A3E) : const Color(0xFFE2E8F0);
+    // All cards use dark background
+    final cardBg = AppTheme.primaryColor;
+    final borderColor = const Color(0xFF2A2A3E);
     final tagText = tags.join(', ');
 
     return Container(
@@ -457,7 +455,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : AppTheme.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -465,7 +463,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               IconButton(
                 onPressed: () => _copyToClipboard(tagText, 'Tags'),
                 icon: const Icon(Icons.copy, size: 20),
-                color: isDark ? Colors.white54 : AppTheme.primaryColor,
+                color: AppTheme.secondaryColor,
                 tooltip: 'Copy to clipboard',
               ),
             ],
@@ -479,14 +477,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: tags.map((tag) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.secondaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                color: AppTheme.secondaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 tag,
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                  color: AppTheme.secondaryColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
