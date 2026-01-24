@@ -140,6 +140,11 @@ class PaymentMethodsPage(BasePage):
 
     def go_back(self):
         """Go back to settings"""
+        import time
         self.driver.back()
+        time.sleep(1)  # Wait for navigation animation
         from .settings_page import SettingsPage
-        return SettingsPage(self.driver)
+        settings_page = SettingsPage(self.driver)
+        # Wait for settings screen to be displayed
+        settings_page.wait_for_text("Settings", timeout=5)
+        return settings_page
