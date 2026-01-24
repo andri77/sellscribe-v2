@@ -6,6 +6,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/generator/upload_screen.dart';
 import '../screens/generator/details_screen.dart';
 import '../screens/generator/results_screen.dart';
+import '../screens/generator/edit_listing_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/settings/profile_edit_screen.dart';
@@ -20,6 +21,7 @@ class AppRoutes {
   static const String upload = '/generator/upload';
   static const String details = '/generator/details';
   static const String results = '/generator/results';
+  static const String editListing = '/generator/edit';
   static const String history = '/history';
   static const String settings = '/settings';
   static const String profileEdit = '/settings/profile';
@@ -79,6 +81,13 @@ class AppRoutes {
           builder: (context, state) {
             final listingId = state.extra as String?;
             return ResultsScreen(listingId: listingId);
+          },
+        ),
+        GoRoute(
+          path: editListing,
+          builder: (context, state) {
+            final listingId = state.extra as String?;
+            return EditListingScreen(listingId: listingId ?? '');
           },
         ),
         GoRoute(

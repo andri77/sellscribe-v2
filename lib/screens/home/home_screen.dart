@@ -34,20 +34,32 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
+                color: AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.edit_note,
-                color: Colors.white,
-                size: 20,
+              child: Center(
+                child: Text(
+                  'S',
+                  style: TextStyle(
+                    color: AppTheme.secondaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Playfair Display',
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
-            const Text('SellScribe'),
+            Text(
+              'SellScribe',
+              style: TextStyle(
+                fontFamily: 'Playfair Display',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
         actions: [
@@ -55,26 +67,37 @@ class _HomeScreenState extends State<HomeScreen> {
           Consumer<AuthProvider>(
             builder: (context, auth, _) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppTheme.secondaryColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.bolt,
-                      size: 18,
-                      color: AppTheme.primaryColor,
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 16,
+                      color: AppTheme.secondaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${auth.creditsRemaining}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        color: AppTheme.secondaryColor,
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${auth.creditsRemaining} credits',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryColor,
+                      'credits',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                        color: AppTheme.secondaryColor,
                       ),
                     ),
                   ],
@@ -177,22 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         final name = auth.userProfile?.displayName ?? 'there';
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back, $name!',
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Create compelling product listings with the power of AI.',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppTheme.textSecondary,
-              ),
-            ),
-          ],
+        return Text(
+          'Welcome back, $name.',
+          style: Theme.of(context).textTheme.displaySmall,
         );
       },
     );
@@ -206,26 +216,25 @@ class _HomeScreenState extends State<HomeScreen> {
           'Quick Actions',
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Wrap(
-          spacing: 16,
-          runSpacing: 16,
+          spacing: 20,
+          runSpacing: 20,
           children: [
             _ActionCard(
-              icon: Icons.add_circle_outline,
+              icon: Icons.edit_note,
               title: 'Create Listing',
-              description: 'Generate a new product listing with AI',
-              gradient: AppTheme.primaryGradient,
+              description: 'Generate compelling product copy with AI assistance',
+              isPrimary: true,
               onTap: () {
                 context.read<ListingProvider>().reset();
                 context.go(AppRoutes.upload);
               },
             ),
             _ActionCard(
-              icon: Icons.history,
+              icon: Icons.folder_outlined,
               title: 'View History',
-              description: 'See your past generations',
-              color: AppTheme.secondaryColor,
+              description: 'Browse and manage your past generations',
               onTap: () => context.go(AppRoutes.history),
             ),
           ],
@@ -250,24 +259,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (recentListings.isNotEmpty)
-                  TextButton(
+                  TextButton.icon(
                     onPressed: () => context.go(AppRoutes.history),
-                    child: const Text('View all'),
+                    icon: const Text('View all'),
+                    label: Icon(Icons.arrow_forward, size: 16),
                   ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             if (recentListings.isEmpty)
               _buildEmptyState(context)
             else
               Wrap(
-                spacing: 16,
-                runSpacing: 16,
+                spacing: 20,
+                runSpacing: 20,
                 children: recentListings.map((listing) {
                   return _ListingCard(
                     title: listing.generatedTitle ?? listing.productName,
                     category: listing.category,
                     createdAt: listing.createdAt,
+                    listingId: listing.id,
                     onTap: () {
                       context.go(AppRoutes.results, extra: listing.id);
                     },
@@ -281,38 +292,53 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.article_outlined,
-            size: 48,
-            color: AppTheme.textMuted,
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppTheme.secondaryColor.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.edit_note,
+              size: 36,
+              color: AppTheme.secondaryColor,
+            ),
           ),
-          const SizedBox(height: 16),
-          const Text(
+          const SizedBox(height: 24),
+          Text(
             'No listings yet',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+              color: isDark ? Colors.white : AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Create your first AI-powered product listing',
-            style: TextStyle(color: AppTheme.textSecondary),
+            style: TextStyle(
+              color: isDark ? Colors.white70 : AppTheme.textSecondary,
+              fontSize: 15,
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           AppButton(
-            text: 'Create Listing',
+            text: 'Create Your First Listing',
             icon: Icons.add,
             onPressed: () {
               context.read<ListingProvider>().reset();
@@ -325,157 +351,249 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _ActionCard extends StatelessWidget {
+class _ActionCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String description;
-  final Gradient? gradient;
-  final Color? color;
+  final bool isPrimary;
   final VoidCallback onTap;
 
   const _ActionCard({
     required this.icon,
     required this.title,
     required this.description,
-    this.gradient,
-    this.color,
+    this.isPrimary = false,
     required this.onTap,
   });
 
   @override
+  State<_ActionCard> createState() => _ActionCardState();
+}
+
+class _ActionCardState extends State<_ActionCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 280,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          color: color?.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: gradient == null
-              ? Border.all(color: color ?? AppTheme.primaryColor)
-              : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: gradient != null ? Colors.white.withOpacity(0.2) : color?.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = widget.isPrimary
+        ? AppTheme.primaryColor
+        : (isDark ? const Color(0xFF1E1E2E) : Colors.white);
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 300,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(12),
+            border: widget.isPrimary
+                ? null
+                : Border.all(color: _isHovered ? AppTheme.secondaryColor.withOpacity(0.5) : borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: _isHovered
+                    ? (widget.isPrimary
+                        ? AppTheme.primaryColor.withOpacity(0.3)
+                        : AppTheme.secondaryColor.withOpacity(isDark ? 0.15 : 0.08))
+                    : Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+                blurRadius: _isHovered ? 16 : 8,
+                offset: Offset(0, _isHovered ? 6 : 2),
               ),
-              child: Icon(
-                icon,
-                color: gradient != null ? Colors.white : color,
-                size: 24,
+            ],
+          ),
+          transform: _isHovered
+              ? (Matrix4.identity()..translate(0.0, -4.0))
+              : Matrix4.identity(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AppTheme.secondaryColor.withOpacity(widget.isPrimary ? 0.2 : 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: widget.isPrimary ? AppTheme.secondaryColor : (isDark ? AppTheme.secondaryColor : AppTheme.primaryColor),
+                  size: 26,
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 20),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: widget.isPrimary ? Colors.white : (isDark ? Colors.white : AppTheme.textPrimary),
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                widget.description,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: widget.isPrimary
+                      ? Colors.white.withOpacity(0.8)
+                      : (isDark ? Colors.white70 : AppTheme.textSecondary),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
                   Text(
-                    title,
+                    widget.isPrimary ? 'Get started' : 'View all',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: gradient != null ? Colors.white : color,
+                      color: AppTheme.secondaryColor,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: gradient != null
-                          ? Colors.white.withOpacity(0.8)
-                          : AppTheme.textSecondary,
-                    ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: AppTheme.secondaryColor,
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ListingCard extends StatelessWidget {
+class _ListingCard extends StatefulWidget {
   final String title;
   final String category;
   final DateTime? createdAt;
+  final String? listingId;
   final VoidCallback onTap;
 
   const _ListingCard({
     required this.title,
     required this.category,
     this.createdAt,
+    this.listingId,
     required this.onTap,
   });
 
   @override
+  State<_ListingCard> createState() => _ListingCardState();
+}
+
+class _ListingCardState extends State<_ListingCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 280,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    category,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2A2A3E) : AppTheme.borderColor;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 300,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _isHovered ? AppTheme.secondaryColor.withOpacity(0.5) : borderColor,
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (createdAt != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                _formatDate(createdAt!),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textMuted,
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: _isHovered
+                    ? AppTheme.secondaryColor.withOpacity(isDark ? 0.15 : 0.1)
+                    : Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+                blurRadius: _isHovered ? 12 : 4,
+                offset: Offset(0, _isHovered ? 4 : 1),
               ),
             ],
-          ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppTheme.secondaryColor.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      widget.category,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (widget.listingId != null)
+                    IconButton(
+                      onPressed: () => context.go(AppRoutes.editListing, extra: widget.listingId),
+                      icon: Icon(Icons.edit_outlined, size: 18),
+                      color: isDark ? Colors.white54 : AppTheme.textMuted,
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'Edit listing',
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : AppTheme.textPrimary,
+                  height: 1.3,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (widget.createdAt != null) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 13,
+                      color: isDark ? Colors.white54 : AppTheme.textMuted,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatDate(widget.createdAt!),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white54 : AppTheme.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

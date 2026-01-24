@@ -183,7 +183,7 @@ class ListingProvider extends ChangeNotifier {
           .from('listings')
           .delete()
           .eq('id', id);
-      
+
       _history.removeWhere((listing) => listing.id == id);
       notifyListeners();
       return true;
@@ -192,6 +192,65 @@ class ListingProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  // Update listing (manual edits - no credits consumed)
+  Future<ProductListing?> updateListing({
+    required String id,
+    String? generatedTitle,
+    String? generatedDescription,
+    List<String>? generatedBullets,
+    List<String>? generatedTags,
+    String? productName,
+    String? category,
+    String? keyFeatures,
+    String? targetAudience,
+    String? tone,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{};
+
+      if (generatedTitle != null) updateData['generated_title'] = generatedTitle;
+      if (generatedDescription != null) updateData['generated_description'] = generatedDescription;
+      if (generatedBullets != null) updateData['generated_bullets'] = generatedBullets;
+      if (generatedTags != null) updateData['generated_tags'] = generatedTags;
+      if (productName != null) updateData['product_name'] = productName;
+      if (category != null) updateData['category'] = category;
+      if (keyFeatures != null) updateData['key_features'] = keyFeatures;
+      if (targetAudience != null) updateData['target_audience'] = targetAudience;
+      if (tone != null) updateData['tone'] = tone;
+
+      if (updateData.isEmpty) return _currentListing;
+
+      final response = await SupabaseService.client
+          .from('listings')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single();
+
+      final updatedListing = ProductListing.fromJson(response);
+      _currentListing = updatedListing;
+
+      // Update in history list
+      final historyIndex = _history.indexWhere((l) => l.id == id);
+      if (historyIndex != -1) {
+        _history[historyIndex] = updatedListing;
+      }
+
+      notifyListeners();
+      return updatedListing;
+    } catch (e) {
+      _errorMessage = 'Failed to update listing: $e';
+      notifyListeners();
+      return null;
+    }
+  }
+
+  // Set current listing for editing
+  void setCurrentListing(ProductListing listing) {
+    _currentListing = listing;
+    notifyListeners();
   }
   
   // Reset state

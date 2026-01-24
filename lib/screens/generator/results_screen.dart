@@ -190,15 +190,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     const SizedBox(height: 32),
 
                     // Actions
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 12,
                       children: [
                         AppButton(
                           text: 'Back to Dashboard',
                           variant: AppButtonVariant.outline,
                           onPressed: () => context.go(AppRoutes.home),
                         ),
-                        const SizedBox(width: 16),
+                        AppButton(
+                          text: 'Edit Listing',
+                          icon: Icons.edit_outlined,
+                          variant: AppButtonVariant.outline,
+                          onPressed: () {
+                            if (listing.id != null) {
+                              context.go(AppRoutes.editListing, extra: listing.id);
+                            }
+                          },
+                        ),
                         AppButton(
                           text: 'Create Another',
                           icon: Icons.add,
