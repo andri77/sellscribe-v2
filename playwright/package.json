@@ -1,0 +1,23 @@
+{
+  "name": "sellscribe-playwright",
+  "version": "1.0.0",
+  "description": "TypeScript Playwright E2E + API test suite for SellScribe — Origin Energy demo",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:api": "playwright test tests/api/",
+    "test:auth": "playwright test tests/auth/",
+    "test:headed": "playwright test --headed",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:list": "playwright test --list",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "dotenv": "^16.4.0"
+  }
+}
