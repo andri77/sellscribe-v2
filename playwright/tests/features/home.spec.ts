@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures';
+import { SettingsPage } from '../../pages/SettingsPage';
 
 test.describe('Home Dashboard @smoke', () => {
   test('home screen is displayed after login', async ({ loggedInPage }) => {
@@ -25,8 +26,11 @@ test.describe('Home navigation @regression', () => {
 
   test('navigates to settings from home', async ({ loggedInPage, page }) => {
     await loggedInPage.clickSettings();
-    await expect(page).toHaveURL(/settings/);
-    await loggedInPage.takeScreenshot('navigate-to-settings');
+    // Flutter's hash routing with context.push() does not always update the URL fragment;
+    // verify navigation by checking settings screen content instead
+    const settings = new SettingsPage(page);
+    expect(await settings.isSettingsScreenDisplayed()).toBe(true);
+    await settings.takeScreenshot('navigate-to-settings');
   });
 
   test('navigates to upload on create listing click', async ({ loggedInPage, page }) => {

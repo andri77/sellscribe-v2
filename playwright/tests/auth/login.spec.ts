@@ -63,6 +63,8 @@ test.describe('Session persistence @regression', () => {
     expect(await loggedInPage.isHomeScreenDisplayed()).toBe(true);
     await page.reload();
     await page.waitForLoadState('networkidle');
+    // Flutter accessibility tree resets on reload — re-enable before checking home content
+    await loggedInPage.waitForFlutter();
     expect(await loggedInPage.isHomeScreenDisplayed()).toBe(true);
     await loggedInPage.takeScreenshot('session-persists-after-refresh');
   });

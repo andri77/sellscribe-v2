@@ -4,8 +4,9 @@ import { BasePage } from './BasePage';
 export class LoginPage extends BasePage {
   private readonly baseUrl: string;
 
-  readonly EMAIL_INPUT = "input[aria-label*='email' i], input[aria-label*='Email' i], [data-testid='email-input'], input[type='email']";
-  readonly PASSWORD_INPUT = "input[aria-label*='password' i], input[aria-label*='Password' i], [data-testid='password-input'], input[type='password']";
+  // Exact aria-labels confirmed from live Flutter DOM inspection
+  readonly EMAIL_INPUT = "input[aria-label='Enter your email'], input[aria-label*='email' i], [data-testid='email-input'], input[type='email']";
+  readonly PASSWORD_INPUT = "input[aria-label='Enter your password'], input[aria-label*='password' i]:not([aria-label*='confirm' i]), [data-testid='password-input'], input[type='password']";
   readonly LOGIN_BUTTON = "flt-semantics[role='button']:has-text('Sign In'), [data-testid='login-button'], button:has-text('Sign In')";
   readonly REGISTER_LINK = "flt-semantics[role='button']:has-text('Sign up'), [data-testid='register-link'], a:has-text('Sign Up')";
   readonly ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']";

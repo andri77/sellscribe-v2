@@ -4,13 +4,18 @@ import { BasePage } from './BasePage';
 export class HomePage extends BasePage {
   private readonly baseUrl: string;
 
-  readonly CREATE_LISTING_BUTTON = "flt-semantics[role='button']:has-text('Create Listing'), flt-semantics[role='button']:has-text('New Listing'), [data-testid='create-listing'], button:has-text('Create Listing')";
-  readonly CREDITS_DISPLAY = "[data-testid='credits-display'], .credits, [class*='credit']";
-  readonly HISTORY_LINK = "flt-semantics[role='button']:has-text('History'), flt-semantics[role='link']:has-text('History'), [data-testid='history-link'], a:has-text('History')";
-  readonly SETTINGS_LINK = "flt-semantics[role='button']:has-text('Settings'), [data-testid='settings-link'], a:has-text('Settings')";
-  readonly SIGN_OUT_BUTTON = "flt-semantics[role='button']:has-text('Sign Out'), flt-semantics[role='button']:has-text('Logout'), [data-testid='sign-out'], button:has-text('Sign Out')";
-  readonly PROFILE_MENU = "flt-semantics[role='button']:has-text('Profile'), [data-testid='profile-menu'], [aria-label='Profile']";
-  readonly WELCOME_MESSAGE = "[data-testid='welcome-message'], .welcome, h1:has-text('Welcome'), h2:has-text('Welcome')";
+  // Selectors verified against live Flutter DOM inspection
+  readonly CREATE_LISTING_BUTTON = "flt-semantics[role='button']:has-text('Create Listing'), [data-testid='create-listing'], button:has-text('Create Listing')";
+  // Credits shows as text number + 'credits' label in AppBar
+  readonly CREDITS_DISPLAY = "flt-semantics:has-text('credits'), [data-testid='credits-display'], [aria-label*='credit' i]";
+  // Home has a 'View History' card (title in home_screen.dart cards)
+  readonly HISTORY_LINK = "flt-semantics[role='button']:has-text('View History'), flt-semantics[role='button']:has-text('History'), [data-testid='history-link'], a:has-text('History')";
+  // Settings and Sign out are in PopupMenuButton — aria-label only (no text content)
+  readonly SHOW_MENU_BUTTON = "flt-semantics[role='button']:has-text('Show menu')";
+  readonly SETTINGS_MENU_ITEM = "flt-semantics[role='menuitem'][aria-label='Settings']";
+  readonly SIGN_OUT_MENU_ITEM = "flt-semantics[role='menuitem'][aria-label='Sign out']";
+  // SellScribe appears in AppBar — most reliable home indicator
+  readonly APP_TITLE = "flt-semantics:has-text('SellScribe'), text=SellScribe";
 
   constructor(page: Page, baseUrl = '') {
     super(page);
@@ -18,15 +23,14 @@ export class HomePage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/dashboard`);
+    await super.navigate(`${this.baseUrl}/home`);
   }
 
   async isHomeScreenDisplayed(): Promise<boolean> {
     return (
-      (await this.isVisible(this.CREATE_LISTING_BUTTON, 5000)) ||
-      (await this.isVisible(this.WELCOME_MESSAGE, 3000)) ||
-      (await this.isTextPresent('Dashboard', 3000)) ||
-      (await this.isTextPresent('Create Listing', 3000))
+      (await this.isTextPresent('SellScribe', 5000)) &&
+      ((await this.isTextPresent('Create Listing', 3000)) ||
+        (await this.isTextPresent('View History', 3000)))
     );
   }
 
@@ -50,19 +54,26 @@ export class HomePage extends BasePage {
   }
 
   async clickSettings(): Promise<void> {
-    await this.click(this.SETTINGS_LINK);
+    // Settings is inside the PopupMenuButton — open menu first, then click Settings item
+    await this.click(this.SHOW_MENU_BUTTON);
+    await this.page.waitForTimeout(500);
+    await this.click(this.SETTINGS_MENU_ITEM);
+    await this.page.waitForTimeout(1000);
     await this.waitForLoadState();
   }
 
   async signOut(): Promise<void> {
-    if (await this.isVisible(this.PROFILE_MENU, 3000)) {
-      await this.click(this.PROFILE_MENU);
-    }
-    await this.click(this.SIGN_OUT_BUTTON);
+    // Sign out is inside the PopupMenuButton — open menu first, then click Sign out item
+    await this.click(this.SHOW_MENU_BUTTON);
+    await this.page.waitForTimeout(500);
+    await this.click(this.SIGN_OUT_MENU_ITEM);
     await this.waitForLoadState();
   }
 
   async isCreditsVisible(): Promise<boolean> {
-    return this.isVisible(this.CREDITS_DISPLAY, 3000);
+    return (
+      (await this.isVisible(this.CREDITS_DISPLAY, 3000)) ||
+      (await this.isTextPresent('credits', 3000))
+    );
   }
 }

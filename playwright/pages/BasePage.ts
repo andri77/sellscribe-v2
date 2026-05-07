@@ -14,6 +14,10 @@ export class BasePage {
     await this.enableFlutterAccessibility();
   }
 
+  async waitForFlutter(): Promise<void> {
+    await this.enableFlutterAccessibility();
+  }
+
   protected async enableFlutterAccessibility(): Promise<void> {
     try {
       await this.page.evaluate(() => {
@@ -31,8 +35,14 @@ export class BasePage {
   }
 
   async fill(selector: string, value: string): Promise<void> {
-    await this.page.fill(selector, '', { timeout: this.timeout });
-    await this.page.fill(selector, value, { timeout: this.timeout });
+    // Flutter web needs time after click for its input handler to initialize before keystrokes land.
+    // Without the wait, the first character is dropped. pressSequentially reaches Flutter; fill() does not.
+    const locator = this.page.locator(selector).first();
+    await locator.click({ timeout: this.timeout });
+    await this.page.waitForTimeout(150);
+    await this.page.keyboard.press('Control+a');
+    await this.page.keyboard.press('Delete');
+    await locator.pressSequentially(value, { delay: 50 });
   }
 
   async isVisible(selector: string, timeout = this.timeout): Promise<boolean> {

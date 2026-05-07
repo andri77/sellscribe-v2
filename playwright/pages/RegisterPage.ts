@@ -4,14 +4,16 @@ import { BasePage } from './BasePage';
 export class RegisterPage extends BasePage {
   private readonly baseUrl: string;
 
-  readonly NAME_INPUT = "input[aria-label*='name' i], [data-testid='name-input'], input[name='name']";
+  // Exact aria-labels confirmed from live Flutter DOM inspection of register_screen.dart
+  readonly NAME_INPUT = "input[aria-label='Enter your name'], input[aria-label*='name' i], [data-testid='name-input']";
   readonly FIRST_NAME_INPUT = "input[aria-label*='first name' i], [data-testid='first-name'], input[name='firstName']";
   readonly LAST_NAME_INPUT = "input[aria-label*='last name' i], [data-testid='last-name'], input[name='lastName']";
-  readonly EMAIL_INPUT = "input[aria-label*='email' i], [data-testid='email-input'], input[type='email']";
+  readonly EMAIL_INPUT = "input[aria-label='Enter your email'], input[aria-label*='email' i], [data-testid='email-input'], input[type='email']";
   readonly PASSWORD_INPUT = "input[aria-label='Create a password'], input[aria-label*='password' i]:not([aria-label*='confirm' i]), [data-testid='password-input']";
-  readonly CONFIRM_PASSWORD_INPUT = "input[aria-label*='Confirm' i], [data-testid='confirm-password'], input[name='confirmPassword']";
-  readonly REGISTER_BUTTON = "flt-semantics[role='button']:has-text('Create Account'), flt-semantics[role='button']:has-text('Sign Up'), [data-testid='register-button'], button:has-text('Create Account')";
-  readonly LOGIN_LINK = "flt-semantics[role='button']:has-text('Sign in'), [data-testid='login-link'], a:has-text('Sign In')";
+  readonly CONFIRM_PASSWORD_INPUT = "input[aria-label='Confirm your password'], input[aria-label*='confirm' i], [data-testid='confirm-password']";
+  readonly REGISTER_BUTTON = "flt-semantics[role='button']:has-text('Create Account'), [data-testid='register-button'], button:has-text('Create Account')";
+  readonly SIGN_UP_LINK = "flt-semantics[role='button']:has-text('Sign up'), a:has-text('Sign up')";
+  readonly LOGIN_LINK = "flt-semantics[role='button']:has-text('Sign in'), [data-testid='login-link'], a:has-text('Sign in')";
   readonly ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']";
   readonly TERMS_CHECKBOX = "[data-testid='terms-checkbox'], input[name='terms'], input[name='acceptTerms']";
 
@@ -21,7 +23,11 @@ export class RegisterPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/register`);
+    // Flutter's go_router redirects direct /register URL to /login during auth init.
+    // Navigate to login first and click Sign up to reach the register screen reliably.
+    await super.navigate(`${this.baseUrl}/login`);
+    await this.click(this.SIGN_UP_LINK);
+    await this.waitForLoadState();
   }
 
   async isRegisterScreenDisplayed(): Promise<boolean> {
