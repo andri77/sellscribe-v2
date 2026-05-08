@@ -33,6 +33,37 @@ VERBOSE="-v"
 RERUNS=0
 HEADLESS=false
 START_EMULATOR=false
+KEEP_RUNNING=false
+
+# Track what this session started (only stop what we started)
+EMULATOR_STARTED=false
+APPIUM_STARTED=false
+
+# Auto-stop services we started
+cleanup() {
+    if [[ "$KEEP_RUNNING" == "true" ]]; then
+        print_msg "$YELLOW" "Keeping services running (--keep-running)."
+        return
+    fi
+    if [[ "$APPIUM_STARTED" == "true" ]]; then
+        print_msg "$YELLOW" "Stopping Appium server..."
+        "$SCRIPT_DIR/stop_appium.sh" 2>/dev/null || true
+        print_msg "$GREEN" "Appium stopped."
+    fi
+    if [[ "$EMULATOR_STARTED" == "true" ]]; then
+        print_msg "$YELLOW" "Stopping Android emulator..."
+        if [ -n "$ANDROID_HOME" ]; then
+            "$ANDROID_HOME/platform-tools/adb" emu kill 2>/dev/null || true
+        fi
+        if [ -f /tmp/android_emulator.pid ]; then
+            kill "$(cat /tmp/android_emulator.pid)" 2>/dev/null || true
+            rm -f /tmp/android_emulator.pid
+        fi
+        print_msg "$GREEN" "Emulator stopped."
+    fi
+}
+
+trap 'cleanup' EXIT INT TERM
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -81,6 +112,10 @@ while [[ $# -gt 0 ]]; do
             START_EMULATOR=true
             shift
             ;;
+        --keep-running)
+            KEEP_RUNNING=true
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -96,6 +131,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --debug             Enable debug logging"
             echo "  --headless          Run emulator in headless mode (no window)"
             echo "  --start-emulator    Start emulator automatically if not running"
+            echo "  --keep-running      Don't stop services after tests"
             echo "  -h, --help          Show this help"
             echo ""
             echo "Examples:"
@@ -165,6 +201,7 @@ if [ "$START_EMULATOR" = true ] && [ "$PLATFORM" = "android" ]; then
         fi
 
         print_msg "$BLUE" "Starting emulator: $AVD_NAME"
+        EMULATOR_STARTED=true
         $ANDROID_HOME/emulator/emulator -avd "$AVD_NAME" $EMU_OPTS &
 
         # Wait for emulator to start
@@ -222,11 +259,13 @@ if ! lsof -Pi :4723 -sTCP:LISTEN -t >/dev/null 2>&1; then
     if [ "$START_EMULATOR" = true ]; then
         print_msg "$BLUE" "Starting Appium server..."
         "$SCRIPT_DIR/start_appium.sh" -b
+        APPIUM_STARTED=true
         sleep 3
     else
         read -p "Start Appium server? (y/n): " START_APPIUM
         if [ "$START_APPIUM" = "y" ] || [ "$START_APPIUM" = "Y" ]; then
             "$SCRIPT_DIR/start_appium.sh" -b
+            APPIUM_STARTED=true
             sleep 3
         fi
     fi
