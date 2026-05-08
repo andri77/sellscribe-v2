@@ -126,6 +126,6 @@ class UploadPage(BasePage):
 
     def go_back(self):
         """Go back to home"""
-        self.driver.back()
+        self._back_with_wait()
         from .home_page import HomePage
         return HomePage(self.driver)

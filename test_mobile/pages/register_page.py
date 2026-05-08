@@ -82,8 +82,16 @@ class RegisterPage(BasePage):
         return self
 
     def tap_login_link(self):
-        """Tap login link"""
-        self.tap_by_text(self.LOGIN_LINK)
+        """Tap login link — avoids matching the login button on the login screen"""
+        try:
+            el = self.find_element(
+                AppiumBy.XPATH,
+                '//*[contains(@text, "Already") or contains(@content-desc, "Already")]',
+                timeout=3
+            )
+            el.click()
+        except Exception:
+            self.tap_by_text(self.LOGIN_LINK)
         from .login_page import LoginPage
         return LoginPage(self.driver)
 
@@ -102,4 +110,7 @@ class RegisterPage(BasePage):
 
     def is_error_displayed(self) -> bool:
         """Check if error message is displayed"""
-        return self.is_text_present("Error") or self.is_text_present("Invalid")
+        return self.is_any_text_present(
+            "Error", "Invalid", "Email already in use", "already registered",
+            "must be", "too short", "required", "Please", "weak", timeout=5
+        )

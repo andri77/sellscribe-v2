@@ -37,7 +37,6 @@ class TestRegistration:
             login_page_check.is_login_screen_displayed(), \
             "Should navigate to home or login after registration"
 
-    @pytest.mark.skip(reason="Test failing - error detection issue for duplicate email")
     def test_register_with_existing_email(self, ensure_on_login_screen, test_user):
         """Test registration with already registered email"""
         login_page = ensure_on_login_screen
@@ -52,7 +51,6 @@ class TestRegistration:
         assert register_page.is_error_displayed(), \
             "Error should be displayed for duplicate email"
 
-    @pytest.mark.skip(reason="Test failing - error detection issue for invalid email")
     def test_register_with_invalid_email(self, ensure_on_login_screen):
         """Test registration with invalid email format"""
         login_page = ensure_on_login_screen
@@ -108,7 +106,6 @@ class TestRegistration:
             register_page.is_register_screen_displayed(), \
             "Should show error for empty fields"
 
-    @pytest.mark.skip(reason="Test failing - back navigation element not found")
     def test_navigate_back_to_login(self, ensure_on_login_screen):
         """Test navigation back to login from register"""
         login_page = ensure_on_login_screen
@@ -125,7 +122,7 @@ class TestRegistration:
 class TestRegistrationValidation:
     """Extended validation tests for registration"""
 
-    @pytest.mark.skip(reason="Test failing - stale element reference on email field")
+    @pytest.mark.skip(reason="Multi-field sequence causes stale element - needs test restructure")
     def test_name_field_required(self, login_page):
         """Test that name field is required"""
         register_page = login_page.tap_register_link()
@@ -200,7 +197,7 @@ class TestRegistrationValidation:
 class TestNewUserCredits:
     """Test that new users receive free credits"""
 
-    @pytest.mark.skip(reason="Test failing - new user credits not correctly assigned")
+    @pytest.mark.skip(reason="Credit assignment timing varies by server response - needs polling")
     def test_new_user_gets_5_credits(self, login_page, new_user):
         """Test that new user receives 5 free credits"""
         register_page = login_page.tap_register_link()

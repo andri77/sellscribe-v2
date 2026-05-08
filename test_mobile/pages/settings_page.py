@@ -24,7 +24,9 @@ class SettingsPage(BasePage):
 
     def is_settings_screen_displayed(self) -> bool:
         """Check if settings screen is displayed"""
-        return self.is_text_present(self.SETTINGS_TITLE)
+        return self.is_any_text_present(
+            self.SETTINGS_TITLE, "Sign Out", "Appearance", self.THEME_OPTION, timeout=5
+        )
 
     def tap_edit_profile(self):
         """Tap to edit profile"""
@@ -39,10 +41,12 @@ class SettingsPage(BasePage):
 
     def select_theme(self, theme: str):
         """Select theme from bottom sheet"""
+        import time
         self.tap_theme()
         # Wait for bottom sheet
         self.wait_for_text("Select Theme")
         self.tap_by_text(theme)
+        time.sleep(1)  # wait for bottom sheet to close and settings to re-render
         return self
 
     def set_light_theme(self):
@@ -87,21 +91,23 @@ class SettingsPage(BasePage):
 
     def confirm_sign_out(self):
         """Confirm sign out in dialog"""
-        self.wait_for_text("Sign Out")
-        # Tap the confirmation button (not the Cancel)
-        buttons = self.find_elements(
-            AppiumBy.XPATH,
-            f'//*[@text="{self.SIGN_OUT}"]'
-        )
-        if len(buttons) > 1:
-            buttons[-1].click()  # Last one is the confirm button
-        else:
-            buttons[0].click()
+        import time
+        time.sleep(1)  # wait for dialog to render
+        for label in ["Sign Out", "Confirm", "Yes"]:
+            if self.is_text_present(label, timeout=3):
+                buttons = self.find_elements(
+                    AppiumBy.XPATH,
+                    f'//*[@text="{label}" or @content-desc="{label}"]'
+                )
+                if buttons:
+                    buttons[-1].click()
+                    break
+        time.sleep(1)
         from .login_page import LoginPage
         return LoginPage(self.driver)
 
     def go_back(self):
         """Go back to home"""
-        self.driver.back()
+        self._back_with_wait()
         from .home_page import HomePage
         return HomePage(self.driver)

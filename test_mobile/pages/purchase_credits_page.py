@@ -123,6 +123,6 @@ class PurchaseCreditsPage(BasePage):
 
     def go_back(self):
         """Go back to settings"""
-        self.driver.back()
+        self._back_with_wait()
         from .settings_page import SettingsPage
         return SettingsPage(self.driver)

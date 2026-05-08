@@ -102,6 +102,13 @@ class BasePage:
         except (TimeoutException, NoSuchElementException):
             return False
 
+    def is_any_text_present(self, *texts, timeout: int = 5) -> bool:
+        """Check if ANY of the given texts are present on screen"""
+        for text in texts:
+            if self.is_text_present(text, timeout=timeout):
+                return True
+        return False
+
     def wait_for_element_visible(self, locator_type: str, locator_value: str, timeout: int = None):
         """Wait for element to be visible"""
         wait_time = timeout or Config.EXPLICIT_WAIT
@@ -155,9 +162,15 @@ class BasePage:
         self.driver.swipe(start_x, int(start_y), start_x, int(end_y), 800)
         return self
 
+    def _back_with_wait(self, seconds: float = 1.5):
+        """Navigate back and wait for screen transition to settle"""
+        import time
+        self.driver.back()
+        time.sleep(seconds)
+
     def go_back(self):
         """Press back button"""
-        self.driver.back()
+        self._back_with_wait()
         return self
 
     def hide_keyboard(self):

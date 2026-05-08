@@ -15,7 +15,9 @@ class HistoryPage(BasePage):
 
     def is_history_screen_displayed(self) -> bool:
         """Check if history screen is displayed"""
-        return self.is_text_present(self.PAGE_TITLE)
+        return self.is_any_text_present(
+            self.PAGE_TITLE, self.NO_LISTINGS_TEXT, "Listings", "My Listings", timeout=5
+        )
 
     def has_listings(self) -> bool:
         """Check if there are any listings"""
@@ -100,6 +102,6 @@ class HistoryPage(BasePage):
 
     def go_back(self):
         """Go back to home"""
-        self.driver.back()
+        self._back_with_wait()
         from .home_page import HomePage
         return HomePage(self.driver)

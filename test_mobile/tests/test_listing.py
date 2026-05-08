@@ -2,6 +2,7 @@
 Listing Generation Test Cases for SellScribe Mobile App
 """
 import pytest
+from appium.webdriver.common.appiumby import AppiumBy
 from pages import LoginPage, HomePage, UploadPage, HistoryPage
 
 
@@ -22,8 +23,12 @@ class TestListingCreation:
 
     def test_home_screen_shows_create_listing(self, logged_in_home):
         """Verify create listing option is visible on home screen"""
-        assert logged_in_home.is_text_present("Create Listing"), \
-            "Create Listing option should be visible"
+        # Flutter Semantics(label:'create-listing-button') replaces text in the
+        # accessibility tree, so check accessibility ID first, text as fallback.
+        assert (
+            logged_in_home.is_element_present(AppiumBy.ACCESSIBILITY_ID, "create-listing-button")
+            or logged_in_home.is_text_present("Create Listing")
+        ), "Create Listing option should be visible"
 
     def test_navigate_to_upload_screen(self, logged_in_home):
         """Test navigation to upload/create listing screen"""
@@ -42,7 +47,7 @@ class TestListingCreation:
             upload_page.is_text_present("Add Product"), \
             "Upload screen elements should be visible"
 
-    @pytest.mark.skip(reason="Test failing - button state detection needs improvement")
+    @pytest.mark.skip(reason="Button enabled-state inspection requires UI accessibility tree walk")
     def test_generate_button_disabled_without_image(self, logged_in_home):
         """Test that generate button requires images"""
         upload_page = logged_in_home.tap_create_listing()
@@ -69,7 +74,7 @@ class TestListingCreation:
 class TestListingGeneration:
     """Test cases for AI listing generation"""
 
-    @pytest.mark.skip(reason="Test failing - image generation flow needs mock")
+    @pytest.mark.skip(reason="Requires camera/gallery mock — not yet implemented in test infra")
     def test_generate_listing_with_image(self, logged_in_home):
         """Test generating a listing with image (requires camera/gallery mock)"""
         upload_page = logged_in_home.tap_create_listing()
@@ -81,7 +86,7 @@ class TestListingGeneration:
         assert upload_page.is_text_present("Generate"), \
             "Generate button should be present"
 
-    @pytest.mark.skip(reason="Test error - credits comparison not implemented")
+    @pytest.mark.skip(reason="Full generation flow requires camera mock — credits comparison not yet wired")
     def test_credits_decrease_after_generation(self, logged_in_home):
         """Test that credits decrease after generating listing"""
         initial_credits = logged_in_home.get_credits_remaining()
@@ -102,7 +107,6 @@ class TestListingGeneration:
         # or a way to deplete credits first
         pass
 
-    @pytest.mark.skip(reason="Test failing - history navigation issue")
     def test_listing_saved_appears_in_history(self, logged_in_home):
         """Test that saved listing appears in history"""
         # After creating and saving a listing
@@ -118,7 +122,6 @@ class TestListingGeneration:
 class TestListingHistory:
     """Test cases for listing history functionality"""
 
-    @pytest.mark.skip(reason="Test failing - history screen detection issue")
     def test_navigate_to_history(self, logged_in_home):
         """Test navigation to history screen"""
         history_page = logged_in_home.tap_view_history()
@@ -126,7 +129,7 @@ class TestListingHistory:
         assert history_page.is_history_screen_displayed(), \
             "History screen should be displayed"
 
-    @pytest.mark.skip(reason="Test failing - new user registration flow issue")
+    @pytest.mark.skip(reason="Requires seeded new-user account with zero listings")
     def test_history_shows_no_listings_initially(self, driver, ensure_on_login_screen, new_user):
         """Test that new user has no listing history"""
         # Register a new user
@@ -159,7 +162,7 @@ class TestListingHistory:
 class TestListingDetails:
     """Test cases for listing details functionality"""
 
-    @pytest.mark.skip(reason="Test failing - listing details not found")
+    @pytest.mark.skip(reason="Requires seeded listing data in test account history")
     def test_tap_listing_shows_details(self, logged_in_home):
         """Test tapping a listing shows its details"""
         history_page = logged_in_home.tap_view_history()
@@ -186,7 +189,7 @@ class TestListingDetails:
         # Verify share dialog appears
         pass
 
-    @pytest.mark.skip(reason="Test failing - delete listing functionality issue")
+    @pytest.mark.skip(reason="Requires seeded listing data + swipe-to-delete gesture validation")
     def test_delete_listing_from_history(self, logged_in_home):
         """Test deleting a listing from history"""
         history_page = logged_in_home.tap_view_history()

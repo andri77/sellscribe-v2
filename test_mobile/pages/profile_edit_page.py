@@ -21,7 +21,9 @@ class ProfileEditPage(BasePage):
 
     def is_profile_edit_screen_displayed(self) -> bool:
         """Check if profile edit screen is displayed"""
-        return self.is_text_present(self.PAGE_TITLE)
+        return self.is_any_text_present(
+            self.PAGE_TITLE, self.FIRST_NAME_FIELD, self.SAVE_BUTTON, "Profile", timeout=5
+        )
 
     def _enter_field(self, field_label: str, value: str):
         """Helper to enter value in a field"""
@@ -100,6 +102,6 @@ class ProfileEditPage(BasePage):
 
     def go_back(self):
         """Go back to settings"""
-        self.driver.back()
+        self._back_with_wait()
         from .settings_page import SettingsPage
         return SettingsPage(self.driver)
