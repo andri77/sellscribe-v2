@@ -9,6 +9,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
+
+  // Start the Flutter web server automatically if not already running.
+  // reuseExistingServer=true means a manually-started server on :8080 is reused during dev.
+  webServer: {
+    command: 'flutter run -d web-server --web-port=8080',
+    url: process.env.BASE_URL ?? 'http://localhost:8080',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+    stdout: 'ignore',
+    stderr: 'pipe',
+  },
+
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['list'],
