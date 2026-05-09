@@ -11,16 +11,21 @@ class HomePage(BasePage):
     # Locators
     APP_TITLE = "SellScribe"
     CREDITS_TEXT = "credits"
-    CREATE_LISTING_BUTTON = "Create Listing"
-    VIEW_HISTORY_BUTTON = "View History"
+    # Flutter Semantics(label:) overrides child text in the accessibility tree,
+    # so these must be targeted by ACCESSIBILITY_ID, not text content.
+    CREATE_LISTING_BUTTON = "create-listing-button"
+    VIEW_HISTORY_BUTTON = "view-history-button"
     WELCOME_TEXT = "Welcome back"
     QUICK_ACTIONS = "Quick Actions"
     RECENT_LISTINGS = "Recent Listings"
-    PROFILE_MENU = "Show menu"  # Menu button content-desc
+    # PopupMenuButton tooltip set explicitly in Flutter source: tooltip='profile-menu'
+    PROFILE_MENU = "profile-menu"
 
     def is_home_screen_displayed(self) -> bool:
         """Check if home screen is displayed"""
-        return self.is_text_present(self.APP_TITLE) or self.is_text_present(self.WELCOME_TEXT)
+        return self.is_any_text_present(
+            self.APP_TITLE, self.WELCOME_TEXT, self.QUICK_ACTIONS, "Create Listing", "credits", timeout=8
+        )
 
     def get_credits_remaining(self) -> int:
         """Get remaining credits count"""
@@ -39,19 +44,19 @@ class HomePage(BasePage):
 
     def tap_create_listing(self):
         """Tap Create Listing button"""
-        self.tap_by_text(self.CREATE_LISTING_BUTTON)
+        self.find_by_accessibility_id(self.CREATE_LISTING_BUTTON).click()
         from .upload_page import UploadPage
         return UploadPage(self.driver)
 
     def tap_view_history(self):
         """Tap View History button"""
-        self.tap_by_text(self.VIEW_HISTORY_BUTTON)
+        self.find_by_accessibility_id(self.VIEW_HISTORY_BUTTON).click()
         from .history_page import HistoryPage
         return HistoryPage(self.driver)
 
     def tap_profile_menu(self):
         """Tap profile menu button"""
-        self.tap_by_text(self.PROFILE_MENU)
+        self.find_by_accessibility_id(self.PROFILE_MENU).click()
         return self
 
     def tap_settings(self):

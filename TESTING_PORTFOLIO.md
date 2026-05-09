@@ -188,32 +188,108 @@ npx playwright install chromium firefox
 # Copy and configure environment
 cp .env.example .env
 # Edit .env: add BASE_URL, TEST_EMAIL, TEST_PASSWORD
+```
 
-# Run all tests (headless)
-npm test
+#### Interactive test runner (recommended)
 
-# Run only smoke tests (fast feedback)
-npm run test:smoke
+`run-tests.sh` is a menu-driven wrapper. Run it with no arguments and answer the prompts:
 
-# Run API tests only
-npm run test:api
+```bash
+cd playwright
+./run-tests.sh
+```
 
-# Run with browser visible
-npm run test:headed
+You will be asked four questions:
 
-# Run against real Supabase API
-USE_REAL_API=true SUPABASE_URL=https://xxx.supabase.co SUPABASE_ANON_KEY=eyJ... npm test
+| Prompt | Options |
+|--------|---------|
+| **Browser** | `1` chromium · `2` firefox · `3` all |
+| **Display mode** | `1` headless _(default)_ · `2` headed _(visible window)_ |
+| **Workers** | `1` auto · `2` sequential · `3` two · `4` five |
+| **Reporter** | `1` list · `2` dot · `3` line · `4` html · `5` json · `6` junit |
+| **Filter** | leave blank for all, or type `@smoke`, `@regression`, `login`, etc. |
 
-# View HTML report
-npm run report
+#### Non-interactive (pass flags directly)
+
+Skip the prompts by passing flags — useful for CI scripts or quick runs:
+
+```bash
+# Flag reference
+./run-tests.sh -b <browser> -m <mode> -w <workers> -r <reporter> -g <grep>
+```
+
+| Flag | Values | Default |
+|------|--------|---------|
+| `-b` | `chromium` · `firefox` · `all` | `chromium` |
+| `-m` | `headless` · `headed` | `headless` |
+| `-w` | `1`–`10` · `max` | auto |
+| `-r` | `list` · `dot` · `line` · `html` · `json` · `junit` | `list` |
+| `-g` | `@smoke` · `@regression` · any test name pattern | _(all tests)_ |
+
+**Common one-liners:**
+
+```bash
+# Smoke tests only, Chromium, headless — fastest feedback
+./run-tests.sh -b chromium -m headless -g @smoke
+
+# Watch tests run step-by-step (headed, single worker)
+./run-tests.sh -b chromium -m headed -w 1
+
+# Full regression on both browsers, HTML report
+./run-tests.sh -b all -w 2 -r html
+npm run report           # opens the HTML report in your browser
+
+# Firefox only, compact output
+./run-tests.sh -b firefox -r dot
+
+# Debug a single area (e.g. login tests)
+./run-tests.sh -b chromium -m headed -w 1 -g login
+```
+
+#### npm script shortcuts
+
+```bash
+npm test                 # all tests, headless, list reporter
+npm run test:smoke       # @smoke tag only
+npm run test:regression  # @regression tag only
+npm run test:api         # API contract tests only
+npm run test:auth        # Auth tests only
+npm run test:headed      # all tests, headed
+npm run test:chromium    # Chromium project only
+npm run test:firefox     # Firefox project only
+npm run report           # Open the last HTML report
+```
+
+#### Reporters explained
+
+| Reporter | Best for | Where output goes |
+|----------|----------|-------------------|
+| `list` | Day-to-day development | Terminal (one line per test) |
+| `dot` | Quick scan | Terminal (one dot per test) |
+| `line` | CI status board | Terminal (compact summary) |
+| `html` | Deep investigation | `playwright-report/index.html` |
+| `json` | Custom tooling | `test-results/results.json` |
+| `junit` | CI XML integration | `playwright-report/results.xml` |
+
+> **Note:** `html`, `junit`, and `json` are always written to disk in parallel with the terminal reporter. The `-r` flag controls what shows in the terminal.
+
+#### Run against real Supabase API
+
+The API contract tests are skipped by default (they require a live key). To enable them:
+
+```bash
+USE_REAL_API=true \
+SUPABASE_URL=https://xxxx.supabase.co \
+SUPABASE_ANON_KEY=eyJ... \
+./run-tests.sh -b chromium
 ```
 
 ### Test Tags
 
 | Tag | Purpose | Command |
 |-----|---------|---------|
-| `@smoke` | Critical path, fast feedback | `npm run test:smoke` |
-| `@regression` | Full coverage | `npm test` |
+| `@smoke` | Critical path, fast feedback | `./run-tests.sh -g @smoke` |
+| `@regression` | Full coverage | `./run-tests.sh` |
 | `@api` | API contract tests only | `npm run test:api` |
 
 ---

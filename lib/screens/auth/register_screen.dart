@@ -195,6 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppTextField(
                           label: 'Name',
                           hint: 'Enter your name',
+                          semanticsLabel: 'name-input',
                           controller: _nameController,
                           prefixIcon: Icons.person_outline,
                           validator: (value) {
@@ -208,6 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppTextField(
                           label: 'Email',
                           hint: 'Enter your email',
+                          semanticsLabel: 'email-input',
                           controller: _emailController,
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
@@ -225,6 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppTextField(
                           label: 'Password',
                           hint: 'Create a password',
+                          semanticsLabel: 'password-create-input',
                           controller: _passwordController,
                           prefixIcon: Icons.lock_outline,
                           obscureText: true,
@@ -242,6 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppTextField(
                           label: 'Confirm Password',
                           hint: 'Confirm your password',
+                          semanticsLabel: 'password-confirm-input',
                           controller: _confirmPasswordController,
                           prefixIcon: Icons.lock_outline,
                           obscureText: true,
@@ -260,6 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           builder: (context, auth, _) {
                             return AppButton(
                               text: 'Create Account',
+                              semanticsLabel: 'create-account-button',
                               onPressed: _handleRegister,
                               isLoading: auth.status == AuthStatus.loading,
                               fullWidth: true,
@@ -274,9 +279,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'Already have an account? ',
                               style: TextStyle(color: AppTheme.textSecondary),
                             ),
-                            TextButton(
-                              onPressed: () => context.go(AppRoutes.login),
-                              child: const Text('Sign in'),
+                            Semantics(
+                              label: 'sign-in-link',
+                              child: TextButton(
+                                onPressed: () => context.go(AppRoutes.login),
+                                child: const Text('Sign in'),
+                              ),
                             ),
                           ],
                         ),

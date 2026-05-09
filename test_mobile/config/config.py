@@ -21,8 +21,8 @@ class Config:
     PAGE_LOAD_TIMEOUT = 60
 
     # Test User Credentials
-    TEST_EMAIL = os.getenv('TEST_EMAIL', 'keilor.downs.pic@gmail.com')
-    TEST_PASSWORD = os.getenv('TEST_PASSWORD', 'Set12345')
+    TEST_EMAIL = os.getenv('TEST_EMAIL', 'test@sellscribe.com')
+    TEST_PASSWORD = os.getenv('TEST_PASSWORD', 'Password123!')
 
     # App paths
     ANDROID_APK_PATH = os.path.join(

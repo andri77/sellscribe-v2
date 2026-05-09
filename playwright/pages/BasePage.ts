@@ -36,7 +36,8 @@ export class BasePage {
 
   async fill(selector: string, value: string): Promise<void> {
     // Flutter web needs time after click for its input handler to initialize before keystrokes land.
-    // Without the wait, the first character is dropped. pressSequentially reaches Flutter; fill() does not.
+    // Without the wait, the first character is dropped. pressSequentially dispatches to the specific
+    // element and reaches Flutter; page.fill() uses native browser fill which does not.
     const locator = this.page.locator(selector).first();
     await locator.click({ timeout: this.timeout });
     await this.page.waitForTimeout(150);

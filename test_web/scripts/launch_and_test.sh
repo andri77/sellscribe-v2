@@ -48,8 +48,8 @@ TEST_FILE="tests/"
 KEEP_SERVER="false"
 
 # Test credentials (can be overridden by .env)
-export TEST_USER_EMAIL="${TEST_USER_EMAIL:-keilor.downs.pic@gmail.com}"
-export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-Set12345}"
+export TEST_USER_EMAIL="${TEST_USER_EMAIL:-test@sellscribe.com}"
+export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-Password123!}"
 
 # =============================================================================
 # Parse Arguments

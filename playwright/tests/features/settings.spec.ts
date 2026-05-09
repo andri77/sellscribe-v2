@@ -18,6 +18,17 @@ test.describe('Settings screen @smoke', () => {
   });
 });
 
+test.describe('Settings back navigation @smoke', () => {
+  test('back button returns to home from settings', async ({ loggedInPage, page }) => {
+    await loggedInPage.clickSettings();
+    const settings = new SettingsPage(page);
+    expect(await settings.isSettingsScreenDisplayed()).toBe(true);
+    await settings.goBack();
+    expect(await loggedInPage.isHomeScreenDisplayed()).toBe(true);
+    await loggedInPage.takeScreenshot('settings-back-to-home');
+  });
+});
+
 test.describe('Profile editing @regression', () => {
   test('edit profile form is accessible', async ({ loggedInPage, page }) => {
     await loggedInPage.clickSettings();

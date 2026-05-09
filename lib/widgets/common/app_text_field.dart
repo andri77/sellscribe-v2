@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 class AppTextField extends StatefulWidget {
   final String? label;
   final String? hint;
+  final String? semanticsLabel;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final bool obscureText;
@@ -22,6 +23,7 @@ class AppTextField extends StatefulWidget {
     super.key,
     this.label,
     this.hint,
+    this.semanticsLabel,
     this.controller,
     this.validator,
     this.obscureText = false,
@@ -69,7 +71,10 @@ class _AppTextFieldState extends State<AppTextField> {
           ),
           const SizedBox(height: 8),
         ],
-        TextFormField(
+        Semantics(
+          label: widget.semanticsLabel,
+          textField: widget.semanticsLabel != null,
+          child: TextFormField(
           controller: widget.controller,
           validator: widget.validator,
           obscureText: _obscureText,
@@ -115,6 +120,7 @@ class _AppTextFieldState extends State<AppTextField> {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: AppTheme.secondaryColor, width: 2),
             ),
+          ),
           ),
         ),
       ],

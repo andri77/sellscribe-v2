@@ -4,9 +4,11 @@ import { BasePage } from './BasePage';
 export class LoginPage extends BasePage {
   private readonly baseUrl: string;
 
-  // Exact aria-labels confirmed from live Flutter DOM inspection
-  readonly EMAIL_INPUT = "input[aria-label='Enter your email'], input[aria-label*='email' i], [data-testid='email-input'], input[type='email']";
-  readonly PASSWORD_INPUT = "input[aria-label='Enter your password'], input[aria-label*='password' i]:not([aria-label*='confirm' i]), [data-testid='password-input'], input[type='password']";
+  // Flutter creates two inputs per Semantics-wrapped field: a disabled one (from our Semantics label)
+  // and an enabled one. Use type selectors — hint-text aria-labels are cleared after the user types,
+  // so they break isLoginScreenDisplayed() checks called after login() completes.
+  readonly EMAIL_INPUT = "input[type='email']:not([disabled])";
+  readonly PASSWORD_INPUT = "input[type='password']:not([disabled])";
   readonly LOGIN_BUTTON = "flt-semantics[role='button']:has-text('Sign In'), [data-testid='login-button'], button:has-text('Sign In')";
   readonly REGISTER_LINK = "flt-semantics[role='button']:has-text('Sign up'), [data-testid='register-link'], a:has-text('Sign Up')";
   readonly ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']";
@@ -38,6 +40,7 @@ export class LoginPage extends BasePage {
   async clickLogin(): Promise<void> {
     await this.click(this.LOGIN_BUTTON);
     await this.waitForLoadState();
+    await this.waitForFlutter();
   }
 
   async login(email: string, password: string): Promise<void> {

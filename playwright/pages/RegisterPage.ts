@@ -4,13 +4,13 @@ import { BasePage } from './BasePage';
 export class RegisterPage extends BasePage {
   private readonly baseUrl: string;
 
-  // Exact aria-labels confirmed from live Flutter DOM inspection of register_screen.dart
-  readonly NAME_INPUT = "input[aria-label='Enter your name'], input[aria-label*='name' i], [data-testid='name-input']";
-  readonly FIRST_NAME_INPUT = "input[aria-label*='first name' i], [data-testid='first-name'], input[name='firstName']";
-  readonly LAST_NAME_INPUT = "input[aria-label*='last name' i], [data-testid='last-name'], input[name='lastName']";
-  readonly EMAIL_INPUT = "input[aria-label='Enter your email'], input[aria-label*='email' i], [data-testid='email-input'], input[type='email']";
-  readonly PASSWORD_INPUT = "input[aria-label='Create a password'], input[aria-label*='password' i]:not([aria-label*='confirm' i]), [data-testid='password-input']";
-  readonly CONFIRM_PASSWORD_INPUT = "input[aria-label='Confirm your password'], input[aria-label*='confirm' i], [data-testid='confirm-password']";
+  // Target enabled inputs using hint text labels; disabled Semantics inputs use different aria-labels
+  readonly NAME_INPUT = "input[aria-label='Enter your name']";
+  readonly FIRST_NAME_INPUT = "input[aria-label='Enter your name']";
+  readonly LAST_NAME_INPUT = "input[aria-label='Enter your name']";
+  readonly EMAIL_INPUT = "input[type='email']:not([disabled])";
+  readonly PASSWORD_INPUT = "input[aria-label='Create a password']";
+  readonly CONFIRM_PASSWORD_INPUT = "input[aria-label='Confirm your password']";
   readonly REGISTER_BUTTON = "flt-semantics[role='button']:has-text('Create Account'), [data-testid='register-button'], button:has-text('Create Account')";
   readonly SIGN_UP_LINK = "flt-semantics[role='button']:has-text('Sign up'), a:has-text('Sign up')";
   readonly LOGIN_LINK = "flt-semantics[role='button']:has-text('Sign in'), [data-testid='login-link'], a:has-text('Sign in')";
@@ -33,8 +33,7 @@ export class RegisterPage extends BasePage {
   async isRegisterScreenDisplayed(): Promise<boolean> {
     return (
       (await this.isVisible(this.EMAIL_INPUT, 5000)) &&
-      ((await this.isVisible(this.NAME_INPUT, 2000)) ||
-        (await this.isVisible(this.FIRST_NAME_INPUT, 2000)))
+      (await this.isVisible(this.NAME_INPUT, 2000))
     );
   }
 

@@ -5,6 +5,7 @@ export class SettingsPage extends BasePage {
   private readonly baseUrl: string;
 
   // Selectors confirmed from live Flutter DOM inspection of settings_screen.dart
+  readonly BACK_BUTTON = "flt-semantics[role='button'][aria-label='Back'], button[aria-label='Back']";
   readonly PROFILE_SECTION = "flt-semantics:has-text('Profile'), [data-testid='profile-section']";
   readonly EDIT_PROFILE_BUTTON = "flt-semantics[role='button']:has-text('Edit Profile'), [data-testid='edit-profile']";
   readonly THEME_BUTTON = "flt-semantics[role='button']:has-text('Theme'), [data-testid='theme-button']";
@@ -22,6 +23,12 @@ export class SettingsPage extends BasePage {
   constructor(page: Page, baseUrl = '') {
     super(page);
     this.baseUrl = baseUrl;
+  }
+
+  async goBack(): Promise<void> {
+    await this.click(this.BACK_BUTTON);
+    await this.waitForLoadState();
+    await this.waitForFlutter();
   }
 
   async navigate(): Promise<void> {

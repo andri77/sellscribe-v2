@@ -8,59 +8,42 @@ from .base_page import BasePage
 class LoginPage(BasePage):
     """Page object for Login screen"""
 
-    # Locators - Using content-desc for Flutter accessibility labels
-    EMAIL_FIELD = "Email"
-    EMAIL_HINT = "Enter your email"
-    PASSWORD_FIELD = "Password"
-    PASSWORD_HINT = "Enter your password"
-    LOGIN_BUTTON = "Sign In"
-    REGISTER_LINK = "Sign up"
+    # Locators - ACCESSIBILITY_ID maps to Semantics(label:) in Flutter source
+    EMAIL_FIELD_ID = "email-input"
+    PASSWORD_FIELD_ID = "password-input"
+    SIGN_IN_BUTTON_ID = "sign-in-button"
+    SIGN_UP_LINK_ID = "sign-up-link"
     FORGOT_PASSWORD_LINK = "Forgot password?"
     ERROR_MESSAGE = "error"
     WELCOME_TEXT = "Welcome back"
 
-    def enter_email(self, email: str):
-        """Enter email address"""
+    def _enter_field_by_id(self, accessibility_id: str, value: str):
+        """Focus a field via its semantic ID, then type into the active element."""
         import time
-        from appium.webdriver.common.appiumby import AppiumBy
-        # Find EditText by hint
-        email_field = self.find_element(
-            AppiumBy.XPATH,
-            f'//android.widget.EditText[contains(@hint, "email")]'
-        )
-        email_field.click()
+        self.find_by_accessibility_id(accessibility_id).click()
         time.sleep(0.3)
-        email_field.clear()
-        email_field.send_keys(email)
-        time.sleep(0.3)
+        active = self.driver.switch_to.active_element
+        active.clear()
+        active.send_keys(value)
         self.hide_keyboard()
         return self
+
+    def enter_email(self, email: str):
+        """Enter email address"""
+        return self._enter_field_by_id(self.EMAIL_FIELD_ID, email)
 
     def enter_password(self, password: str):
         """Enter password"""
-        import time
-        from appium.webdriver.common.appiumby import AppiumBy
-        # Find EditText by hint
-        password_field = self.find_element(
-            AppiumBy.XPATH,
-            f'//android.widget.EditText[contains(@hint, "password")]'
-        )
-        password_field.click()
-        time.sleep(0.3)
-        password_field.clear()
-        password_field.send_keys(password)
-        time.sleep(0.3)
-        self.hide_keyboard()
-        return self
+        return self._enter_field_by_id(self.PASSWORD_FIELD_ID, password)
 
     def tap_login(self):
         """Tap login button"""
-        self.tap_by_text(self.LOGIN_BUTTON)
+        self.find_by_accessibility_id(self.SIGN_IN_BUTTON_ID).click()
         return self
 
     def tap_register_link(self):
         """Tap register/sign up link"""
-        self.tap_by_text(self.REGISTER_LINK)
+        self.find_by_accessibility_id(self.SIGN_UP_LINK_ID).click()
         from .register_page import RegisterPage
         return RegisterPage(self.driver)
 

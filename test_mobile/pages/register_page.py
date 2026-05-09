@@ -1,97 +1,55 @@
 """
 Register Page Object for SellScribe Mobile App
 """
-from appium.webdriver.common.appiumby import AppiumBy
 from .base_page import BasePage
 
 
 class RegisterPage(BasePage):
     """Page object for Registration screen"""
 
-    # Locators
-    NAME_FIELD = "Name"
-    EMAIL_FIELD = "Email"
-    PASSWORD_FIELD = "Password"
-    CONFIRM_PASSWORD_FIELD = "Confirm Password"
-    REGISTER_BUTTON = "Create Account"
-    LOGIN_LINK = "Sign In"
+    # Locators - ACCESSIBILITY_ID maps to Semantics(label:) in Flutter source
+    NAME_FIELD_ID = "name-input"
+    EMAIL_FIELD_ID = "email-input"
+    PASSWORD_FIELD_ID = "password-create-input"
+    CONFIRM_PASSWORD_FIELD_ID = "password-confirm-input"
+    REGISTER_BUTTON_ID = "create-account-button"
+    SIGN_IN_LINK_ID = "sign-in-link"
+
+    def _enter_field_by_id(self, accessibility_id: str, value: str):
+        """Focus a field via its semantic ID, then type into the active element."""
+        import time
+        self.find_by_accessibility_id(accessibility_id).click()
+        time.sleep(0.3)
+        active = self.driver.switch_to.active_element
+        active.clear()
+        active.send_keys(value)
+        self.hide_keyboard()
+        return self
 
     def enter_name(self, name: str):
         """Enter name"""
-        import time
-        # Find EditText by hint - "Enter your name"
-        name_field = self.find_element(
-            AppiumBy.XPATH,
-            '//android.widget.EditText[contains(@hint, "your name")]'
-        )
-        name_field.click()
-        time.sleep(0.3)
-        name_field.send_keys(name)
-        time.sleep(0.3)
-        self.hide_keyboard()
-        return self
+        return self._enter_field_by_id(self.NAME_FIELD_ID, name)
 
     def enter_email(self, email: str):
         """Enter email address"""
-        import time
-        # Find EditText by hint - "Enter your email"
-        email_field = self.find_element(
-            AppiumBy.XPATH,
-            '//android.widget.EditText[contains(@hint, "your email")]'
-        )
-        email_field.click()
-        time.sleep(0.3)
-        email_field.send_keys(email)
-        time.sleep(0.3)
-        self.hide_keyboard()
-        return self
+        return self._enter_field_by_id(self.EMAIL_FIELD_ID, email)
 
     def enter_password(self, password: str):
         """Enter password"""
-        import time
-        # Find EditText by hint - "Create a password"
-        password_field = self.find_element(
-            AppiumBy.XPATH,
-            '//android.widget.EditText[contains(@hint, "Create a password")]'
-        )
-        password_field.click()
-        time.sleep(0.3)
-        password_field.send_keys(password)
-        time.sleep(0.3)
-        self.hide_keyboard()
-        return self
+        return self._enter_field_by_id(self.PASSWORD_FIELD_ID, password)
 
     def enter_confirm_password(self, password: str):
         """Enter confirm password"""
-        import time
-        # Find EditText by hint - "Confirm your password"
-        confirm_field = self.find_element(
-            AppiumBy.XPATH,
-            '//android.widget.EditText[contains(@hint, "Confirm your password")]'
-        )
-        confirm_field.click()
-        time.sleep(0.3)
-        confirm_field.send_keys(password)
-        time.sleep(0.3)
-        self.hide_keyboard()
-        return self
+        return self._enter_field_by_id(self.CONFIRM_PASSWORD_FIELD_ID, password)
 
     def tap_register(self):
         """Tap register button"""
-        self.tap_by_text(self.REGISTER_BUTTON)
+        self.find_by_accessibility_id(self.REGISTER_BUTTON_ID).click()
         return self
 
     def tap_login_link(self):
-        """Tap login link — avoids matching the login button on the login screen"""
-        try:
-            el = self.find_element(
-                AppiumBy.XPATH,
-                '//*[contains(@text, "Already") or contains(@content-desc, "Already")]',
-                timeout=3
-            )
-            el.click()
-        except Exception:
-            self.tap_by_text(self.LOGIN_LINK)
+        """Tap the 'Sign in' link"""
+        self.find_by_accessibility_id(self.SIGN_IN_LINK_ID).click()
         from .login_page import LoginPage
         return LoginPage(self.driver)
 

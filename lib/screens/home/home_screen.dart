@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           PopupMenuButton<String>(
+            tooltip: 'profile-menu',
             icon: const CircleAvatar(
               backgroundColor: AppTheme.primaryColor,
               child: Icon(Icons.person, color: Colors.white, size: 20),
@@ -225,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icons.edit_note,
               title: 'Create Listing',
               description: 'Generate compelling product copy with AI assistance',
+              semanticsLabel: 'create-listing-button',
               isPrimary: true,
               onTap: () {
                 context.read<ListingProvider>().reset();
@@ -235,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icons.folder_outlined,
               title: 'View History',
               description: 'Browse and manage your past generations',
+              semanticsLabel: 'view-history-button',
               onTap: () => context.go(AppRoutes.history),
             ),
           ],
@@ -339,6 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 28),
           AppButton(
             text: 'Create Your First Listing',
+            semanticsLabel: 'create-first-listing-button',
             icon: Icons.add,
             onPressed: () {
               context.read<ListingProvider>().reset();
@@ -357,6 +361,7 @@ class _ActionCard extends StatefulWidget {
   final String description;
   final bool isPrimary;
   final VoidCallback onTap;
+  final String? semanticsLabel;
 
   const _ActionCard({
     required this.icon,
@@ -364,6 +369,7 @@ class _ActionCard extends StatefulWidget {
     required this.description,
     this.isPrimary = false,
     required this.onTap,
+    this.semanticsLabel,
   });
 
   @override
@@ -379,10 +385,13 @@ class _ActionCardState extends State<_ActionCard> {
     final cardBg = AppTheme.primaryColor;
     final borderColor = const Color(0xFF2A2A3E);
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
+    return Semantics(
+      label: widget.semanticsLabel,
+      button: widget.semanticsLabel != null,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -462,6 +471,7 @@ class _ActionCardState extends State<_ActionCard> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -12,6 +12,7 @@ class AppButton extends StatelessWidget {
   final bool fullWidth;
   final double? width;
   final double height;
+  final String? semanticsLabel;
 
   const AppButton({
     super.key,
@@ -23,6 +24,7 @@ class AppButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.height = 48,
+    this.semanticsLabel,
   });
 
   @override
@@ -44,15 +46,14 @@ class AppButton extends StatelessWidget {
         break;
     }
     
-    if (fullWidth || width != null) {
-      return SizedBox(
-        width: fullWidth ? double.infinity : width,
-        height: height,
-        child: button,
-      );
+    Widget sized = (fullWidth || width != null)
+        ? SizedBox(width: fullWidth ? double.infinity : width, height: height, child: button)
+        : SizedBox(height: height, child: button);
+
+    if (semanticsLabel != null) {
+      return Semantics(label: semanticsLabel, child: sized);
     }
-    
-    return SizedBox(height: height, child: button);
+    return sized;
   }
 
   Widget _buildPrimaryButton() {

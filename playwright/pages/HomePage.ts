@@ -46,11 +46,13 @@ export class HomePage extends BasePage {
   async clickCreateListing(): Promise<void> {
     await this.click(this.CREATE_LISTING_BUTTON);
     await this.waitForLoadState();
+    await this.waitForFlutter();
   }
 
   async clickHistory(): Promise<void> {
     await this.click(this.HISTORY_LINK);
     await this.waitForLoadState();
+    await this.waitForFlutter();
   }
 
   async clickSettings(): Promise<void> {

@@ -152,12 +152,12 @@ mkdir -p "$REPORTS_DIR/screenshots"
 if [[ "$PLATFORM" == "android" ]]; then
   step "1/3" "Android Emulator"
 
-  RUNNING_EMU=$("${ADB_CMD}" devices 2>/dev/null | grep "emulator-" | head -1 | cut -f1)
+  RUNNING_EMU=$("${ADB_CMD}" devices 2>/dev/null | grep "emulator-" | head -1 | cut -f1 || true)
 
   if [[ -n "$RUNNING_EMU" ]]; then
     ok "Emulator already running: $RUNNING_EMU"
   else
-    AVD_NAME=$("${EMULATOR_CMD}" -list-avds 2>/dev/null | head -1)
+    AVD_NAME=$("${EMULATOR_CMD}" -list-avds 2>/dev/null | head -1 || true)
     if [[ -z "$AVD_NAME" ]]; then
       err "No AVD found. Create one in Android Studio > Device Manager."
       exit 1
@@ -181,7 +181,7 @@ if [[ "$PLATFORM" == "android" ]]; then
       printf "."
     done
     printf "\n"
-    RUNNING_EMU=$("${ADB_CMD}" devices 2>/dev/null | grep "emulator-" | head -1 | cut -f1)
+    RUNNING_EMU=$("${ADB_CMD}" devices 2>/dev/null | grep "emulator-" | head -1 | cut -f1 || true)
     ok "Emulator started: $RUNNING_EMU"
   fi
 

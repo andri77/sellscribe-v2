@@ -18,6 +18,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings'),
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
@@ -30,18 +31,22 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppTheme.primaryColor,
-                    child: Text(
-                      user?.fullName.substring(0, 1).toUpperCase() ?? 'U',
-                      style: const TextStyle(color: Colors.white),
+                Semantics(
+                  label: 'edit-profile-tile',
+                  button: true,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: AppTheme.primaryColor,
+                      child: Text(
+                        user?.fullName.substring(0, 1).toUpperCase() ?? 'U',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
+                    title: Text(user?.fullName ?? 'User'),
+                    subtitle: Text(user?.email ?? ''),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/profile'),
                   ),
-                  title: Text(user?.fullName ?? 'User'),
-                  subtitle: Text(user?.email ?? ''),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/profile'),
                 ),
               ],
             ),
@@ -53,12 +58,15 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: Icon(themeProvider.themeModeIcon),
-                  title: const Text('Theme'),
-                  subtitle: Text(themeProvider.themeModeDisplayName),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showThemeSelector(context, themeProvider),
+                Semantics(
+                  label: 'theme-button',
+                  child: ListTile(
+                    leading: Icon(themeProvider.themeModeIcon),
+                    title: const Text('Theme'),
+                    subtitle: Text(themeProvider.themeModeDisplayName),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _showThemeSelector(context, themeProvider),
+                  ),
                 ),
               ],
             ),
@@ -70,20 +78,28 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.credit_card),
-                  title: const Text('Payment Methods'),
-                  subtitle: const Text('Manage your cards'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/payment-methods'),
+                Semantics(
+                  label: 'payment-methods-tile',
+                  button: true,
+                  child: ListTile(
+                    leading: const Icon(Icons.credit_card),
+                    title: const Text('Payment Methods'),
+                    subtitle: const Text('Manage your cards'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/payment-methods'),
+                  ),
                 ),
                 const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.monetization_on),
-                  title: const Text('Purchase Credits'),
-                  subtitle: Text('${user?.creditsRemaining ?? 0} credits remaining'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/purchase-credits'),
+                Semantics(
+                  label: 'purchase-credits-tile',
+                  button: true,
+                  child: ListTile(
+                    leading: const Icon(Icons.monetization_on),
+                    title: const Text('Purchase Credits'),
+                    subtitle: Text('${user?.creditsRemaining ?? 0} credits remaining'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/purchase-credits'),
+                  ),
                 ),
               ],
             ),
@@ -95,13 +111,16 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.logout, color: AppTheme.errorColor),
-                  title: const Text(
-                    'Sign Out',
-                    style: TextStyle(color: AppTheme.errorColor),
+                Semantics(
+                  label: 'sign-out-button',
+                  child: ListTile(
+                    leading: const Icon(Icons.logout, color: AppTheme.errorColor),
+                    title: const Text(
+                      'Sign Out',
+                      style: TextStyle(color: AppTheme.errorColor),
+                    ),
+                    onTap: () => _showSignOutDialog(context, authProvider),
                   ),
-                  onTap: () => _showSignOutDialog(context, authProvider),
                 ),
               ],
             ),

@@ -182,6 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         AppTextField(
                           label: 'Email',
                           hint: 'Enter your email',
+                          semanticsLabel: 'email-input',
                           controller: _emailController,
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
@@ -199,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         AppTextField(
                           label: 'Password',
                           hint: 'Enter your password',
+                          semanticsLabel: 'password-input',
                           controller: _passwordController,
                           prefixIcon: Icons.lock_outline,
                           obscureText: true,
@@ -212,11 +214,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // TODO: Implement forgot password
-                            },
-                            child: const Text('Forgot password?'),
+                          child: Semantics(
+                            label: 'forgot-password-button',
+                            child: TextButton(
+                              onPressed: () {
+                                // TODO: Implement forgot password
+                              },
+                              child: const Text('Forgot password?'),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -224,6 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context, auth, _) {
                             return AppButton(
                               text: 'Sign In',
+                              semanticsLabel: 'sign-in-button',
                               onPressed: _handleLogin,
                               isLoading: auth.status == AuthStatus.loading,
                               fullWidth: true,
@@ -238,9 +244,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               "Don't have an account? ",
                               style: TextStyle(color: AppTheme.textSecondary),
                             ),
-                            TextButton(
-                              onPressed: () => context.go(AppRoutes.register),
-                              child: const Text('Sign up'),
+                            Semantics(
+                              label: 'sign-up-link',
+                              child: TextButton(
+                                onPressed: () => context.go(AppRoutes.register),
+                                child: const Text('Sign up'),
+                              ),
                             ),
                           ],
                         ),
