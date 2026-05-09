@@ -10,8 +10,10 @@ export class HomePage extends BasePage {
   readonly CREDITS_DISPLAY = "flt-semantics:has-text('credits'), [data-testid='credits-display'], [aria-label*='credit' i]";
   // Home has a 'View History' card (title in home_screen.dart cards)
   readonly HISTORY_LINK = "flt-semantics[role='button']:has-text('View History'), flt-semantics[role='button']:has-text('History'), [data-testid='history-link'], a:has-text('History')";
-  // Settings and Sign out are in PopupMenuButton — aria-label only (no text content)
-  readonly SHOW_MENU_BUTTON = "flt-semantics[role='button']:has-text('Show menu')";
+  // Settings and Sign out are in PopupMenuButton — tooltip='profile-menu'.
+  // Flutter web exposes tooltip as text content on the flt-semantics button node.
+  // Fallback covers the Material default "Show menu" label if tooltip is ever removed.
+  readonly SHOW_MENU_BUTTON = "flt-semantics[role='button']:has-text('profile-menu'), flt-semantics[role='button'][aria-label='profile-menu'], flt-semantics[role='button']:has-text('Show menu')";
   readonly SETTINGS_MENU_ITEM = "flt-semantics[role='menuitem'][aria-label='Settings']";
   readonly SIGN_OUT_MENU_ITEM = "flt-semantics[role='menuitem'][aria-label='Sign out']";
   // SellScribe appears in AppBar — most reliable home indicator

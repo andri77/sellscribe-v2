@@ -5,7 +5,8 @@ export class SettingsPage extends BasePage {
   private readonly baseUrl: string;
 
   // Selectors confirmed from live Flutter DOM inspection of settings_screen.dart
-  readonly BACK_BUTTON = "flt-semantics[role='button'][aria-label='Back'], button[aria-label='Back']";
+  // tooltip: 'Back' on IconButton → text content 'Back' in Flutter web semantic tree.
+  readonly BACK_BUTTON = "flt-semantics[role='button']:has-text('Back'), flt-semantics[role='button'][aria-label='Back'], button[aria-label='Back']";
   readonly PROFILE_SECTION = "flt-semantics:has-text('Profile'), [data-testid='profile-section']";
   readonly EDIT_PROFILE_BUTTON = "flt-semantics[role='button']:has-text('Edit Profile'), [data-testid='edit-profile']";
   readonly THEME_BUTTON = "flt-semantics[role='button']:has-text('Theme'), [data-testid='theme-button']";

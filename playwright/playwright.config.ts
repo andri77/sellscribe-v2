@@ -5,6 +5,9 @@ dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
+  // globalSetup waits for flt-semantics-placeholder so tests don't race the Dart compile.
+  globalSetup: './global-setup.ts',
+  timeout: 60_000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -39,9 +42,11 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    // Firefox: API contract tests only — Flutter web does not render in Firefox.
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testMatch: '**/api/**',
     },
   ],
 });
