@@ -8,42 +8,31 @@ from .base_page import BasePage
 class LoginPage(BasePage):
     """Page object for Login screen"""
 
-    # Locators - ACCESSIBILITY_ID maps to Semantics(label:) in Flutter source
-    EMAIL_FIELD_ID = "email-input"
-    PASSWORD_FIELD_ID = "password-input"
-    SIGN_IN_BUTTON_ID = "sign-in-button"
-    SIGN_UP_LINK_ID = "sign-up-link"
+    # Actual content-desc values discovered via adb uiautomator dump.
+    # Flutter Semantics(label:) does NOT set contentDescription on EditText fields;
+    # those are found by EditText index (see BasePage._enter_field_by_index).
+    # Buttons use their visible text as content-desc (Flutter merges child Text widgets).
+    SIGN_IN_BUTTON_CD = "Sign In"
+    SIGN_UP_LINK_CD = "Sign up"
     FORGOT_PASSWORD_LINK = "Forgot password?"
-    ERROR_MESSAGE = "error"
     WELCOME_TEXT = "Welcome back"
 
-    def _enter_field_by_id(self, accessibility_id: str, value: str):
-        """Focus a field via its semantic ID, then type into the active element."""
-        import time
-        self.find_by_accessibility_id(accessibility_id).click()
-        time.sleep(0.3)
-        active = self.driver.switch_to.active_element
-        active.clear()
-        active.send_keys(value)
-        self.hide_keyboard()
-        return self
-
     def enter_email(self, email: str):
-        """Enter email address"""
-        return self._enter_field_by_id(self.EMAIL_FIELD_ID, email)
+        """Enter email address (first EditText on screen)"""
+        return self._enter_field_by_index(0, email)
 
     def enter_password(self, password: str):
-        """Enter password"""
-        return self._enter_field_by_id(self.PASSWORD_FIELD_ID, password)
+        """Enter password (second EditText on screen)"""
+        return self._enter_field_by_index(1, password)
 
     def tap_login(self):
         """Tap login button"""
-        self.find_by_accessibility_id(self.SIGN_IN_BUTTON_ID).click()
+        self.find_by_text(self.SIGN_IN_BUTTON_CD).click()
         return self
 
     def tap_register_link(self):
         """Tap register/sign up link"""
-        self.find_by_accessibility_id(self.SIGN_UP_LINK_ID).click()
+        self.find_by_text(self.SIGN_UP_LINK_CD).click()
         from .register_page import RegisterPage
         return RegisterPage(self.driver)
 
@@ -65,11 +54,14 @@ class LoginPage(BasePage):
 
     def is_login_screen_displayed(self) -> bool:
         """Check if login screen is displayed"""
-        return self.is_text_present(self.WELCOME_TEXT) or self.is_text_present(self.LOGIN_BUTTON)
+        return self.is_text_present(self.WELCOME_TEXT) or self.is_element_present(
+            AppiumBy.XPATH,
+            f'//*[@content-desc="{self.SIGN_IN_BUTTON_CD}" or @text="{self.SIGN_IN_BUTTON_CD}"]',
+            timeout=5
+        )
 
     def is_error_displayed(self) -> bool:
         """Check if error message is displayed"""
-        # Check for various error message patterns
         error_patterns = [
             "Invalid",
             "Error",
@@ -87,7 +79,6 @@ class LoginPage(BasePage):
     def get_error_message(self) -> str:
         """Get error message text"""
         try:
-            # Look for common error indicators
             if self.is_text_present("Invalid email"):
                 return "Invalid email"
             if self.is_text_present("Invalid password"):

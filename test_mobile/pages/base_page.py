@@ -173,6 +173,23 @@ class BasePage:
         self._back_with_wait()
         return self
 
+    def _enter_field_by_index(self, index: int, value: str):
+        """Type into the nth android.widget.EditText on screen (0-based index).
+        Flutter input fields have empty content-desc, so accessibility_id fails.
+        XPath positional query fetches a fresh reference each time, avoiding
+        StaleElementReferenceException caused by Flutter re-renders mid-transition."""
+        import time
+        # XPath position() is 1-based; re-query on each call for a live reference
+        xpath = f'(//android.widget.EditText)[{index + 1}]'
+        field = self.find_element(AppiumBy.XPATH, xpath, timeout=10)
+        field.click()
+        time.sleep(0.3)
+        active = self.driver.switch_to.active_element
+        active.clear()
+        active.send_keys(value)
+        self.hide_keyboard()
+        return self
+
     def hide_keyboard(self):
         """Hide keyboard if visible"""
         try:

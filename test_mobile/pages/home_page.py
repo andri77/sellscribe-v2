@@ -8,18 +8,17 @@ from .base_page import BasePage
 class HomePage(BasePage):
     """Page object for Home screen"""
 
-    # Locators
+    # Actual content-desc values discovered via adb uiautomator dump.
+    # PopupMenuButton(tooltip:'profile-menu') renders as 'Show menu' (Material default).
+    # Action cards merge child Text widgets: cd='Create Listing\n...' → match by prefix.
     APP_TITLE = "SellScribe"
     CREDITS_TEXT = "credits"
-    # Flutter Semantics(label:) overrides child text in the accessibility tree,
-    # so these must be targeted by ACCESSIBILITY_ID, not text content.
-    CREATE_LISTING_BUTTON = "create-listing-button"
-    VIEW_HISTORY_BUTTON = "view-history-button"
+    CREATE_LISTING_TEXT = "Create Listing"
+    VIEW_HISTORY_TEXT = "View History"
     WELCOME_TEXT = "Welcome back"
     QUICK_ACTIONS = "Quick Actions"
     RECENT_LISTINGS = "Recent Listings"
-    # PopupMenuButton tooltip set explicitly in Flutter source: tooltip='profile-menu'
-    PROFILE_MENU = "profile-menu"
+    PROFILE_MENU_CD = "Show menu"
 
     def is_home_screen_displayed(self) -> bool:
         """Check if home screen is displayed"""
@@ -43,20 +42,20 @@ class HomePage(BasePage):
             return 0
 
     def tap_create_listing(self):
-        """Tap Create Listing button"""
-        self.find_by_accessibility_id(self.CREATE_LISTING_BUTTON).click()
+        """Tap Create Listing button (content-desc contains 'Create Listing')"""
+        self.find_by_text(self.CREATE_LISTING_TEXT, exact=False).click()
         from .upload_page import UploadPage
         return UploadPage(self.driver)
 
     def tap_view_history(self):
-        """Tap View History button"""
-        self.find_by_accessibility_id(self.VIEW_HISTORY_BUTTON).click()
+        """Tap View History button (content-desc contains 'View History')"""
+        self.find_by_text(self.VIEW_HISTORY_TEXT, exact=False).click()
         from .history_page import HistoryPage
         return HistoryPage(self.driver)
 
     def tap_profile_menu(self):
-        """Tap profile menu button"""
-        self.find_by_accessibility_id(self.PROFILE_MENU).click()
+        """Tap profile menu button (Material default tooltip: 'Show menu')"""
+        self.find_by_accessibility_id(self.PROFILE_MENU_CD).click()
         return self
 
     def tap_settings(self):

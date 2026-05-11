@@ -104,18 +104,46 @@ def driver(platform, device_name, app_path):
     driver.quit()
 
 
+def _wait_for_login_screen(driver, timeout=30):
+    """Restart app and block until login screen is visible (Welcome back text)."""
+    import time
+    from pages import LoginPage
+
+    app_id = 'com.sellscribe.app'
+    try:
+        driver.terminate_app(app_id)
+        time.sleep(2)
+    except Exception:
+        pass
+    try:
+        driver.activate_app(app_id)
+    except Exception:
+        pass
+
+    login_page = LoginPage(driver)
+    # Splash screen takes 2 s + Supabase network init — wait up to `timeout` s
+    try:
+        login_page.wait_for_text('Welcome back', timeout=timeout)
+    except Exception:
+        # Fallback: try waiting for the email field directly
+        try:
+            from appium.webdriver.common.appiumby import AppiumBy
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located(
+                    (AppiumBy.ACCESSIBILITY_ID, 'email-input')
+                )
+            )
+        except Exception:
+            pass  # Let individual test assertions catch the failure
+    return login_page
+
+
 @pytest.fixture(scope="function")
 def reset_app(driver):
     """Reset app state before each test"""
-    import time
-    try:
-        app_id = 'com.sellscribe.app'
-        driver.terminate_app(app_id)
-        time.sleep(1)
-        driver.activate_app(app_id)
-        time.sleep(3)
-    except Exception:
-        pass
+    _wait_for_login_screen(driver)
     yield
 
 
@@ -123,34 +151,15 @@ def reset_app(driver):
 def ensure_on_login_screen(driver):
     """
     Ensure we're on the login screen before tests that need it.
-    Restarts the app to ensure a clean state.
+    Restarts the app and waits for the login screen to be ready.
     """
-    from pages import LoginPage
-    import time
-
-    app_id = 'com.sellscribe.app'
-
-    # Always restart the app to ensure clean state
-    try:
-        driver.terminate_app(app_id)
-        time.sleep(1)
-    except Exception:
-        pass
-
-    try:
-        driver.activate_app(app_id)
-        time.sleep(3)  # Wait for app to load
-    except Exception:
-        pass
-
-    login_page = LoginPage(driver)
-    return login_page
+    return _wait_for_login_screen(driver)
 
 
 @pytest.fixture(scope="function")
 def login_page(driver):
-    """Return LoginPage instance"""
-    return LoginPage(driver)
+    """Return LoginPage — waits for login screen to be ready after app launch."""
+    return _wait_for_login_screen(driver)
 
 
 @pytest.fixture(scope="function")

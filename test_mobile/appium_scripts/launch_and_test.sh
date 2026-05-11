@@ -53,7 +53,7 @@ TEST_FILE=""
 MARKERS=""
 HEADLESS=false
 VERBOSE="-v"
-RERUNS=2
+RERUNS=1
 KEEP_RUNNING=false
 
 # Track what this run started (only stop what we started)
@@ -259,7 +259,7 @@ PYTEST_CMD="pytest"
 [[ -n "$TEST_FILE" ]] && PYTEST_CMD="$PYTEST_CMD tests/$TEST_FILE" || PYTEST_CMD="$PYTEST_CMD tests/"
 PYTEST_CMD="$PYTEST_CMD $VERBOSE --platform=$PLATFORM"
 [[ -n "$MARKERS" ]]   && PYTEST_CMD="$PYTEST_CMD -m \"$MARKERS\""
-(( RERUNS > 0 ))       && PYTEST_CMD="$PYTEST_CMD --reruns $RERUNS --reruns-delay 2"
+(( RERUNS > 0 ))       && PYTEST_CMD="$PYTEST_CMD --reruns $RERUNS --reruns-delay 15"
 
 HTML_REPORT="$REPORTS_DIR/report_${TIMESTAMP}.html"
 PYTEST_CMD="$PYTEST_CMD --html=$HTML_REPORT --self-contained-html"

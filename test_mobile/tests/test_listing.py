@@ -23,12 +23,10 @@ class TestListingCreation:
 
     def test_home_screen_shows_create_listing(self, logged_in_home):
         """Verify create listing option is visible on home screen"""
-        # Flutter Semantics(label:'create-listing-button') replaces text in the
-        # accessibility tree, so check accessibility ID first, text as fallback.
-        assert (
-            logged_in_home.is_element_present(AppiumBy.ACCESSIBILITY_ID, "create-listing-button")
-            or logged_in_home.is_text_present("Create Listing")
-        ), "Create Listing option should be visible"
+        # Flutter merges child Text widgets into content-desc; actual value is
+        # 'Create Listing\nGenerate a new product listing with AI' — match by prefix.
+        assert logged_in_home.is_text_present("Create Listing"), \
+            "Create Listing option should be visible"
 
     @pytest.mark.skip(reason="Upload AppBar text not exposed in UiAutomator2 snapshot — verify element attributes with Appium Inspector")
     def test_navigate_to_upload_screen(self, logged_in_home):
