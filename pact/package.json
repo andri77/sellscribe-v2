@@ -11,10 +11,14 @@
     "test:provider": "jest provider/ --runInBand",
     "pact:publish": "pact-broker publish ./pacts --consumer-app-version=${GITHUB_SHA:-local} --branch=${GITHUB_REF_NAME:-local}",
     "typecheck": "tsc --noEmit",
-    "pretest:consumer": "rm -rf pacts/*.json"
+    "pretest:consumer": "rm -rf pacts/*.json",
+    "provider:up": "./scripts/provider-up.sh",
+    "provider:down": "./scripts/provider-down.sh"
   },
   "devDependencies": {
     "@pact-foundation/pact": "^17.1.4",
+    "@pact-foundation/pact-cli": "~18.1.2",
+    "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
     "dotenv": "^16.4.0",

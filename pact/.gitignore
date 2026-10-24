@@ -3,3 +3,5 @@ dist/
 logs/
 .env
 # Generated pacts are committed until the broker is live (plan §6)
+.env.provider
+.env.functions

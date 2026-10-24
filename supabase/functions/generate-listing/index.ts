@@ -2,7 +2,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
-const OPENAI_ENDPOINT = 'https://api.openai.com/v1/chat/completions'
+// Overridable so contract verification can point at a local stub
+const OPENAI_BASE_URL = Deno.env.get('OPENAI_BASE_URL') ?? 'https://api.openai.com'
+const OPENAI_ENDPOINT = OPENAI_BASE_URL + '/v1/chat/completions'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
