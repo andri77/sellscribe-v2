@@ -7,10 +7,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "test:consumer": "jest consumer/",
+    "test:consumer": "jest consumer/ --runInBand",
     "test:provider": "jest provider/ --runInBand",
     "pact:publish": "pact-broker publish ./pacts --consumer-app-version=${GITHUB_SHA:-local} --branch=${GITHUB_REF_NAME:-local}",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "pretest:consumer": "rm -rf pacts/*.json"
   },
   "devDependencies": {
     "@pact-foundation/pact": "^17.1.4",
