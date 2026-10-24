@@ -1,0 +1,187 @@
+name: Contract Tests
+
+# Pact consumer-driven contracts (docs/superpowers/plans/2026-10-24-pact-contract-testing.md).
+# Works without a broker: pacts are passed between jobs as an artifact. Setting the repo
+# variable PACT_BROKER_BASE_URL (plus secret PACT_BROKER_TOKEN) switches on publishing,
+# broker-driven verification and can-i-deploy.
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'lib/**'
+      - 'pubspec.*'
+      - 'supabase/**'
+      - 'pact/**'
+      - 'test/contract/**'
+      - '.github/workflows/contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'pubspec.*'
+      - 'supabase/**'
+      - 'pact/**'
+      - 'test/contract/**'
+      - '.github/workflows/contract.yml'
+  # Broker webhook "contract requiring verification published" → verify just that pact
+  repository_dispatch:
+    types: [contract_requiring_verification_published]
+  workflow_dispatch:
+
+env:
+  PACT_BROKER_BASE_URL: ${{ vars.PACT_BROKER_BASE_URL }}
+  PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+
+jobs:
+  consumer:
+    name: Consumer pacts
+    if: github.event_name != 'repository_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pact
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: pact/.nvmrc
+          cache: 'npm'
+          cache-dependency-path: pact/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run consumer contract tests
+        run: npm run test:consumer
+
+      - name: Upload pacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pacts
+          path: pact/pacts/
+          retention-days: 7
+
+      - name: Publish pacts to broker
+        if: env.PACT_BROKER_BASE_URL != ''
+        run: npm run pact:publish
+
+  guard-dart:
+    name: Dart model guard
+    needs: consumer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download pacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pacts
+          path: pact/pacts/
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # .env is a bundled asset (pubspec.yaml); the guard needs no real values
+      - name: Create placeholder .env
+        run: touch .env
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Dart contract guard
+        run: flutter test test/contract
+
+  provider:
+    name: Provider verification
+    needs: consumer
+    # Also runs on broker webhooks, when the consumer job is skipped
+    if: ${{ !cancelled() && (needs.consumer.result == 'success' || needs.consumer.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pact
+    env:
+      PACT_URL: ${{ github.event.client_payload.pact_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download pacts
+        if: needs.consumer.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: pacts
+          path: pact/pacts/
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: pact/.nvmrc
+          cache: 'npm'
+          cache-dependency-path: pact/package-lock.json
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start providers (local Supabase + generate-listing)
+        run: npm run provider:up
+
+      - name: Verify pacts
+        run: npm run test:provider
+
+      - name: Stop providers
+        if: always()
+        run: npm run provider:down
+
+      - name: Upload provider logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-logs
+          path: pact/logs/
+          retention-days: 7
+
+  can-i-deploy:
+    name: Can I deploy?
+    needs: [consumer, guard-dart, provider]
+    if: vars.PACT_BROKER_BASE_URL != '' && github.event_name == 'push' && github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pact
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: pact/.nvmrc
+          cache: 'npm'
+          cache-dependency-path: pact/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the app can be deployed
+        run: >-
+          npx pact-broker can-i-deploy
+          --pacticipant sellscribe-app --version "$GITHUB_SHA"
+          --to-environment production
+          --retry-while-unknown 6 --retry-interval 10

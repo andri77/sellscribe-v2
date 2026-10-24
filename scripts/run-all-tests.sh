@@ -7,6 +7,7 @@
 #   ./scripts/run-all-tests.sh --mobile      # Appium only
 #   ./scripts/run-all-tests.sh --smoke       # @smoke tag across all suites
 #   ./scripts/run-all-tests.sh --no-mobile   # skip mobile (no emulator needed)
+#   ./scripts/run-all-tests.sh --pact        # Pact consumer contracts + Dart model guard only
 
 set -euo pipefail
 
@@ -34,6 +35,7 @@ note()   { printf "${YELLOW}→ %s${RESET}\n" "$1" | tee -a "$LOG_FILE"; }
 # ── argument parsing ───────────────────────────────────────────────────────────
 RUN_WEB=true
 RUN_MOBILE=true
+RUN_PACT=false
 SMOKE_ONLY=false
 
 for arg in "$@"; do
@@ -41,9 +43,10 @@ for arg in "$@"; do
     --web)       RUN_MOBILE=false ;;
     --mobile)    RUN_WEB=false ;;
     --no-mobile) RUN_MOBILE=false ;;
+    --pact)      RUN_PACT=true; RUN_WEB=false; RUN_MOBILE=false ;;
     --smoke)     SMOKE_ONLY=true ;;
     --help|-h)
-      printf "Usage: %s [--web|--mobile|--no-mobile|--smoke]\n" "$(basename "$0")"
+      printf "Usage: %s [--web|--mobile|--no-mobile|--pact|--smoke]\n" "$(basename "$0")"
       exit 0
       ;;
   esac
@@ -52,6 +55,7 @@ done
 # ── results tracking ───────────────────────────────────────────────────────────
 WEB_EXIT=0
 MOBILE_EXIT=0
+PACT_EXIT=0
 
 printf "\n${BOLD}SellScribe Test Runner${RESET}  [%s]\n" "$TIMESTAMP" | tee -a "$LOG_FILE"
 note "Log: $LOG_FILE"
@@ -124,6 +128,32 @@ if [[ "$RUN_MOBILE" == "true" ]]; then
 fi
 
 # ══════════════════════════════════════════════════════════════════════════════
+# CONTRACT  (Pact consumer + Dart model guard; provider verification runs in CI)
+# ══════════════════════════════════════════════════════════════════════════════
+if [[ "$RUN_PACT" == "true" ]]; then
+  header "Contract Tests (Pact)"
+
+  PACT_DIR="$PROJECT_ROOT/pact"
+
+  if [[ ! -d "$PACT_DIR/node_modules" ]]; then
+    note "Installing Pact dependencies..."
+    (cd "$PACT_DIR" && npm ci) >> "$LOG_FILE" 2>&1
+  fi
+
+  note "Command: npm run test:consumer && flutter test test/contract"
+  set +e
+  { (cd "$PACT_DIR" && npm run test:consumer) && (cd "$PROJECT_ROOT" && flutter test test/contract); } 2>&1 | tee -a "$LOG_FILE"
+  PACT_EXIT=${PIPESTATUS[0]}
+  set -e
+
+  if [[ $PACT_EXIT -eq 0 ]]; then
+    ok "Contract tests passed."
+  else
+    fail "Contract tests FAILED (exit $PACT_EXIT)."
+  fi
+fi
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Summary
 # ══════════════════════════════════════════════════════════════════════════════
 header "Summary"
@@ -131,9 +161,11 @@ header "Summary"
 OVERALL=0
 [[ "$RUN_WEB"    == "true" && $WEB_EXIT    -ne 0 ]] && OVERALL=1
 [[ "$RUN_MOBILE" == "true" && $MOBILE_EXIT -ne 0 ]] && OVERALL=1
+[[ "$RUN_PACT"   == "true" && $PACT_EXIT   -ne 0 ]] && OVERALL=1
 
 [[ "$RUN_WEB"    == "true" ]] && { [[ $WEB_EXIT    -eq 0 ]] && ok "Web + API : PASS" || fail "Web + API : FAIL"; }
 [[ "$RUN_MOBILE" == "true" ]] && { [[ $MOBILE_EXIT -eq 0 ]] && ok "Mobile   : PASS" || fail "Mobile   : FAIL"; }
+[[ "$RUN_PACT"   == "true" ]] && { [[ $PACT_EXIT   -eq 0 ]] && ok "Contract : PASS" || fail "Contract : FAIL"; }
 
 note "Full log: $LOG_FILE"
 exit $OVERALL
