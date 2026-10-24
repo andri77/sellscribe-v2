@@ -64,6 +64,20 @@ if [[ "$RUN_WEB" == "true" ]]; then
 
   PLAYWRIGHT_DIR="$PROJECT_ROOT/playwright"
 
+  # Non-login shells (cron, IDE runners) may not inherit Homebrew/nvm on PATH
+  if ! command -v npm >/dev/null 2>&1; then
+    for dir in /opt/homebrew/bin /usr/local/bin; do
+      [[ -x "$dir/npm" ]] && export PATH="$dir:$PATH" && break
+    done
+  fi
+  if ! command -v npm >/dev/null 2>&1 && [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+    set +u; source "$HOME/.nvm/nvm.sh"; set -u
+  fi
+  if ! command -v npm >/dev/null 2>&1; then
+    fail "npm not found — install Node (e.g. 'brew install node') or add it to PATH"
+    exit 1
+  fi
+
   if [[ ! -d "$PLAYWRIGHT_DIR/node_modules" ]]; then
     note "Installing Playwright dependencies..."
     (cd "$PLAYWRIGHT_DIR" && npm ci) >> "$LOG_FILE" 2>&1

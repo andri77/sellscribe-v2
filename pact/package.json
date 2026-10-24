@@ -1,0 +1,24 @@
+{
+  "name": "sellscribe-pact",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Consumer-driven contract tests (Pact) for SellScribe — app ↔ Edge Function / PostgREST",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test:consumer": "jest consumer/",
+    "test:provider": "jest provider/ --runInBand",
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=${GITHUB_SHA:-local} --branch=${GITHUB_REF_NAME:-local}",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^17.1.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.0",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
+    "typescript": "^5.9.0"
+  }
+}

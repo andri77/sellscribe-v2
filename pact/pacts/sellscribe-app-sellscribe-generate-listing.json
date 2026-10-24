@@ -1,0 +1,514 @@
+{
+  "consumer": {
+    "name": "sellscribe-app"
+  },
+  "interactions": [
+    {
+      "description": "a full generate-listing request",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "OpenAI returns a valid listing"
+        }
+      ],
+      "request": {
+        "body": {
+          "content": {
+            "category": "Electronics",
+            "imageUrls": [
+              "https://example.supabase.co/storage/v1/object/public/product-images/u1/charger.jpg"
+            ],
+            "keyFeatures": "Eco-friendly, Fast 15W charging, LED indicator",
+            "productName": "Bamboo Wireless Charger",
+            "targetAudience": "Tech enthusiasts who care about sustainability",
+            "tone": "professional"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Authorization": [
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.example-user"
+          ],
+          "Content-Type": [
+            "application/json"
+          ],
+          "apikey": [
+            "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.example-anon"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer [\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            },
+            "apikey": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/functions/v1/generate-listing"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "bullets": [
+              "Fast 15W wireless charging"
+            ],
+            "description": "<p>Eco-friendly fast charging solution.</p>",
+            "tags": [
+              "wireless-charger"
+            ],
+            "title": "Premium Bamboo Wireless Charger — Fast Qi Charging"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.bullets": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.tags": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^.{1,70}$"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a generate-listing request while OpenAI is down",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "OpenAI is unavailable"
+        }
+      ],
+      "request": {
+        "body": {
+          "content": {
+            "category": "Electronics",
+            "imageUrls": [
+              "https://example.supabase.co/storage/v1/object/public/product-images/u1/charger.jpg"
+            ],
+            "keyFeatures": "Eco-friendly, Fast 15W charging, LED indicator",
+            "productName": "Bamboo Wireless Charger",
+            "targetAudience": "Tech enthusiasts who care about sustainability",
+            "tone": "professional"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Authorization": [
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.example-user"
+          ],
+          "Content-Type": [
+            "application/json"
+          ],
+          "apikey": [
+            "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.example-anon"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer [\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            },
+            "apikey": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/functions/v1/generate-listing"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "error": "Failed to generate listing"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 500
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a generate-listing request with an empty category",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "category": "",
+            "imageUrls": null,
+            "keyFeatures": null,
+            "productName": "Bamboo Wireless Charger",
+            "targetAudience": null,
+            "tone": "professional"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Authorization": [
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.example-user"
+          ],
+          "Content-Type": [
+            "application/json"
+          ],
+          "apikey": [
+            "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.example-anon"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer [\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            },
+            "apikey": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/functions/v1/generate-listing"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "error": "Product name and category are required"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a generate-listing request with an empty productName",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "category": "Electronics",
+            "imageUrls": null,
+            "keyFeatures": null,
+            "productName": "",
+            "targetAudience": null,
+            "tone": "professional"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Authorization": [
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.example-user"
+          ],
+          "Content-Type": [
+            "application/json"
+          ],
+          "apikey": [
+            "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.example-anon"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer [\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            },
+            "apikey": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/functions/v1/generate-listing"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "error": "Product name and category are required"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "a minimal generate-listing request with null optionals",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "OpenAI returns a valid listing"
+        }
+      ],
+      "request": {
+        "body": {
+          "content": {
+            "category": "Electronics",
+            "imageUrls": null,
+            "keyFeatures": null,
+            "productName": "Bamboo Wireless Charger",
+            "targetAudience": null,
+            "tone": "professional"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Authorization": [
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.example-user"
+          ],
+          "Content-Type": [
+            "application/json"
+          ],
+          "apikey": [
+            "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.example-anon"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^Bearer [\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            },
+            "apikey": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/functions/v1/generate-listing"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "bullets": [
+              "Fast 15W wireless charging"
+            ],
+            "description": "<p>Eco-friendly fast charging solution.</p>",
+            "tags": [
+              "wireless-charger"
+            ],
+            "title": "Premium Bamboo Wireless Charger — Fast Qi Charging"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.bullets": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.tags": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^.{1,70}$"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "17.1.4"
+    },
+    "pactRust": {
+      "ffi": "0.5.8",
+      "models": "1.3.16"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "sellscribe-generate-listing"
+  }
+}
