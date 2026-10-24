@@ -102,8 +102,9 @@ describe('sellscribe-app → PostgREST /profiles', () => {
             city: like('Melbourne'),
           }),
       )
-      // PostgREST answers 201 for upserts; the SDK accepts any 2xx (confirm in M4).
-      .willRespondWith(201)
+      // The row exists, so the merge-duplicates upsert is an update: PostgREST answers 200
+      // (201 only when it inserts). The SDK accepts any 2xx.
+      .willRespondWith(200)
       .executeTest(async (mock) => {
         const res = await postgrestClient(mock.url).upsertProfile({
           id: USER_ID,
@@ -114,6 +115,6 @@ describe('sellscribe-app → PostgREST /profiles', () => {
           last_name: 'User',
           city: 'Melbourne',
         });
-        expect(res.status).toBe(201);
+        expect(res.status).toBe(200);
       }));
 });
