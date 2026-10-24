@@ -146,14 +146,18 @@ class _UploadScreenState extends State<UploadScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: _selectedImages.isEmpty
-                          ? () => context.go(AppRoutes.details, extra: <String>[])
-                          : null,
-                      child: const Text('Skip this step'),
+                    Semantics(
+                      label: 'skip-upload-button',
+                      child: TextButton(
+                        onPressed: _selectedImages.isEmpty
+                            ? () => context.go(AppRoutes.details, extra: <String>[])
+                            : null,
+                        child: const Text('Skip this step'),
+                      ),
                     ),
                     AppButton(
                       text: 'Continue',
+                      semanticsLabel: 'continue-button',
                       icon: Icons.arrow_forward,
                       onPressed: _handleContinue,
                       isLoading: _isUploading,
@@ -224,56 +228,60 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Widget _buildUploadArea() {
-    return InkWell(
-      onTap: _selectedImages.length < AppConfig.maxImagesPerListing
-          ? _pickImages
-          : null,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(48),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 2,
-            style: BorderStyle.solid,
+    return Semantics(
+      label: 'upload-images-button',
+      button: true,
+      child: InkWell(
+        onTap: _selectedImages.length < AppConfig.maxImagesPerListing
+            ? _pickImages
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(48),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              width: 2,
+              style: BorderStyle.solid,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
+          child: Column(
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.cloud_upload_outlined,
+                  size: 32,
+                  color: AppTheme.primaryColor,
+                ),
               ),
-              child: const Icon(
-                Icons.cloud_upload_outlined,
-                size: 32,
-                color: AppTheme.primaryColor,
+              const SizedBox(height: 16),
+              const Text(
+                'Click to upload images',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Click to upload images',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+              const SizedBox(height: 4),
+              const Text(
+                'PNG, JPG, WEBP up to 10MB each',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'PNG, JPG, WEBP up to 10MB each',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.textMuted,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

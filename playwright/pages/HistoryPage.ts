@@ -19,7 +19,7 @@ export class HistoryPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/history`);
+    await super.navigate(`${this.baseUrl}/#/history`);
   }
 
   async isHistoryScreenDisplayed(): Promise<boolean> {

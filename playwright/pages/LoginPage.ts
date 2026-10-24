@@ -1,16 +1,13 @@
 import { Page } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage, semanticButton, semanticInput } from './BasePage';
 
 export class LoginPage extends BasePage {
   private readonly baseUrl: string;
 
-  // Flutter creates two inputs per Semantics-wrapped field: a disabled one (from our Semantics label)
-  // and an enabled one. Use type selectors — hint-text aria-labels are cleared after the user types,
-  // so they break isLoginScreenDisplayed() checks called after login() completes.
-  readonly EMAIL_INPUT = "input[type='email']:not([disabled])";
-  readonly PASSWORD_INPUT = "input[type='password']:not([disabled])";
-  readonly LOGIN_BUTTON = "flt-semantics[role='button']:has-text('Sign In'), [data-testid='login-button'], button:has-text('Sign In')";
-  readonly REGISTER_LINK = "flt-semantics[role='button']:has-text('Sign up'), [data-testid='register-link'], a:has-text('Sign Up')";
+  readonly EMAIL_INPUT = semanticInput('email-input');
+  readonly PASSWORD_INPUT = semanticInput('password-input');
+  readonly LOGIN_BUTTON = semanticButton('sign-in-button');
+  readonly REGISTER_LINK = semanticButton('sign-up-link');
   readonly ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']";
 
   constructor(page: Page, baseUrl = '') {
@@ -19,7 +16,8 @@ export class LoginPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/login`);
+    // The app uses hash routing — a plain /login path is ignored and the splash decides.
+    await super.navigate(`${this.baseUrl}/#/login`);
   }
 
   async isLoginScreenDisplayed(): Promise<boolean> {

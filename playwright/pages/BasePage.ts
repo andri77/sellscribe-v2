@@ -1,5 +1,24 @@
 import { Page, Locator } from '@playwright/test';
 
+// Flutter web (3.47+) puts the semantic ID from `semanticsLabel` on a disabled twin <input>;
+// the editable input is its sibling inside the same flt-semantics node. Locate by ID, then step
+// to the enabled input. See AGENTS.md "Semantic Element Identifiers".
+export function semanticInput(id: string): string {
+  return `flt-semantics:has(> input[aria-label='${id}']) input:not([disabled])`;
+}
+
+// Flutter renders a semantic ID on a tappable in one of three shapes, depending on the widget:
+//   1. AppButton / Semantics(label:) over a button → role=group[aria-label=id] > role=button
+//   2. Semantics(label:) over a ListTile           → role=button[aria-label=id]
+//   3. Semantics(label:, button: true) / tooltip   → role=button whose text starts with the id
+export function semanticButton(id: string): string {
+  return (
+    `flt-semantics[aria-label='${id}'] > flt-semantics[role='button'], ` +
+    `flt-semantics[role='button'][aria-label='${id}'], ` +
+    `flt-semantics[role='button']:has-text('${id}')`
+  );
+}
+
 export class BasePage {
   readonly page: Page;
   protected readonly timeout = 10_000;
@@ -20,10 +39,16 @@ export class BasePage {
 
   protected async enableFlutterAccessibility(): Promise<void> {
     try {
-      await this.page.evaluate(() => {
-        const el = document.querySelector('flt-semantics-placeholder');
-        if (el) (el as HTMLElement).click();
+      // The placeholder only appears once Flutter renders its first frame (can lag networkidle on
+      // a cold debug server). Once semantics are on, the placeholder is gone and flt-semantics
+      // nodes exist instead — so wait for either, and only click when the placeholder is there.
+      await this.page.waitForSelector('flt-semantics-placeholder, flt-semantics', {
+        state: 'attached',
+        timeout: 30_000,
       });
+      const placeholder = this.page.locator('flt-semantics-placeholder');
+      if ((await placeholder.count()) === 0) return;
+      await placeholder.evaluate((el) => (el as HTMLElement).click());
       await this.page.waitForTimeout(1000);
     } catch {
       // Accessibility already enabled or not a Flutter page

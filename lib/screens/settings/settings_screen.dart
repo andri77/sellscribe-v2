@@ -210,16 +210,19 @@ class SettingsScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              authProvider.signOut();
-              context.go('/login');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorColor,
+          Semantics(
+            label: 'confirm-sign-out-button',
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                authProvider.signOut();
+                context.go('/login');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.errorColor,
+              ),
+              child: const Text('Sign Out'),
             ),
-            child: const Text('Sign Out'),
           ),
         ],
       ),

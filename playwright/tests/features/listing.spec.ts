@@ -32,13 +32,9 @@ test.describe('Listing generation (mocked) @smoke', () => {
 });
 
 test.describe('Listing page UI @regression', () => {
-  test('upload screen is accessible from home', async ({ loggedInPage, page }) => {
+  test('upload screen is accessible from home', async ({ loggedInPage, uploadPage }) => {
     await loggedInPage.clickCreateListing();
-    const hasUpload =
-      (await page.isVisible("[data-testid='file-input'], input[type='file']", { timeout: 5000 }).catch(() => false)) ||
-      (await page.isVisible("[data-testid='dropzone']", { timeout: 3000 }).catch(() => false)) ||
-      (await page.isVisible('text=Upload', { timeout: 3000 }).catch(() => false));
-    expect(hasUpload).toBe(true);
-    await page.screenshot({ path: 'playwright-report/screenshots/upload-screen.png' });
+    expect(await uploadPage.isUploadScreenDisplayed()).toBe(true);
+    await uploadPage.takeScreenshot('upload-screen');
   });
 });

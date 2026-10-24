@@ -1,9 +1,14 @@
 import { Page } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage, semanticButton } from './BasePage';
 
 export class UploadPage extends BasePage {
   private readonly baseUrl: string;
 
+  // Flutter's image picker opens a native file chooser on tap — there is no <input type=file>
+  // in the DOM until then, so the upload area itself is the screen's anchor.
+  readonly UPLOAD_AREA = semanticButton('upload-images-button');
+  readonly SKIP_BUTTON = semanticButton('skip-upload-button');
+  readonly CONTINUE_BUTTON = semanticButton('continue-button');
   readonly FILE_INPUT = "[data-testid='file-input'], input[type='file'], input[accept*='image']";
   readonly DROPZONE = "[data-testid='dropzone'], .dropzone, [class*='drop-zone'], [class*='upload-area']";
   readonly GENERATE_BUTTON = "[data-testid='generate-button'], button:has-text('Generate'), button:has-text('Create Listing')";
@@ -22,15 +27,19 @@ export class UploadPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/upload`);
+    await super.navigate(`${this.baseUrl}/#/generator/upload`);
   }
 
   async isUploadScreenDisplayed(): Promise<boolean> {
     return (
-      (await this.isVisible(this.FILE_INPUT, 5000)) ||
-      (await this.isVisible(this.DROPZONE, 3000)) ||
-      (await this.isTextPresent('Upload', 3000))
+      (await this.isVisible(this.UPLOAD_AREA, 5000)) &&
+      (await this.isVisible(this.CONTINUE_BUTTON, 2000))
     );
+  }
+
+  async clickSkip(): Promise<void> {
+    await this.click(this.SKIP_BUTTON);
+    await this.waitForLoadState();
   }
 
   async uploadImage(filePath: string): Promise<void> {

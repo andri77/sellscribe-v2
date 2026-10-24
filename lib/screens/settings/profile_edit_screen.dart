@@ -130,6 +130,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Expanded(
                     child: AppTextField(
                       label: 'First Name',
+                      semanticsLabel: 'first-name-input',
                       controller: _firstNameController,
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
@@ -144,6 +145,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Expanded(
                     child: AppTextField(
                       label: 'Last Name',
+                      semanticsLabel: 'last-name-input',
                       controller: _lastNameController,
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
@@ -161,6 +163,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               // Mobile
               AppTextField(
                 label: 'Mobile Number',
+                semanticsLabel: 'mobile-input',
                 controller: _mobileController,
                 prefixIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
@@ -172,6 +175,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               const SizedBox(height: 12),
               AppTextField(
                 label: 'Street Address',
+                semanticsLabel: 'address-input',
                 controller: _addressController,
                 prefixIcon: Icons.home_outlined,
               ),
@@ -182,6 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     flex: 2,
                     child: AppTextField(
                       label: 'City',
+                      semanticsLabel: 'city-input',
                       controller: _cityController,
                       prefixIcon: Icons.location_city_outlined,
                     ),
@@ -190,6 +195,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Expanded(
                     child: AppTextField(
                       label: 'State',
+                      semanticsLabel: 'state-input',
                       controller: _stateController,
                     ),
                   ),
@@ -201,6 +207,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Expanded(
                     child: AppTextField(
                       label: 'ZIP Code',
+                      semanticsLabel: 'zip-code-input',
                       controller: _zipCodeController,
                       keyboardType: TextInputType.number,
                     ),
@@ -210,6 +217,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     flex: 2,
                     child: AppTextField(
                       label: 'Country',
+                      semanticsLabel: 'country-input',
                       controller: _countryController,
                       prefixIcon: Icons.flag_outlined,
                     ),
@@ -221,6 +229,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               // Save Button
               AppButton(
                 text: 'Save Changes',
+                semanticsLabel: 'save-profile-button',
                 onPressed: _saveProfile,
                 isLoading: _isLoading,
                 fullWidth: true,

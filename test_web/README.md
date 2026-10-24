@@ -114,7 +114,7 @@ Key configuration options:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `BASE_URL` | Application URL | `http://localhost:3000` |
+| `BASE_URL` | Application URL | `http://localhost:8080` |
 | `TEST_USER_EMAIL` | Test user email | `test@example.com` |
 | `TEST_USER_PASSWORD` | Test user password | `Password123!` |
 | `BROWSER` | Default browser | `chromium` |

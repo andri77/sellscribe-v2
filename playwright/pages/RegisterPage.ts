@@ -1,19 +1,18 @@
 import { Page } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage, semanticButton, semanticInput } from './BasePage';
 
 export class RegisterPage extends BasePage {
   private readonly baseUrl: string;
 
-  // Target enabled inputs using hint text labels; disabled Semantics inputs use different aria-labels
-  readonly NAME_INPUT = "input[aria-label='Enter your name']";
-  readonly FIRST_NAME_INPUT = "input[aria-label='Enter your name']";
-  readonly LAST_NAME_INPUT = "input[aria-label='Enter your name']";
-  readonly EMAIL_INPUT = "input[type='email']:not([disabled])";
-  readonly PASSWORD_INPUT = "input[aria-label='Create a password']";
-  readonly CONFIRM_PASSWORD_INPUT = "input[aria-label='Confirm your password']";
-  readonly REGISTER_BUTTON = "flt-semantics[role='button']:has-text('Create Account'), [data-testid='register-button'], button:has-text('Create Account')";
-  readonly SIGN_UP_LINK = "flt-semantics[role='button']:has-text('Sign up'), a:has-text('Sign up')";
-  readonly LOGIN_LINK = "flt-semantics[role='button']:has-text('Sign in'), [data-testid='login-link'], a:has-text('Sign in')";
+  // The register screen has a single Name field; first/last name are aliases for older callers.
+  readonly NAME_INPUT = semanticInput('name-input');
+  readonly FIRST_NAME_INPUT = this.NAME_INPUT;
+  readonly LAST_NAME_INPUT = this.NAME_INPUT;
+  readonly EMAIL_INPUT = semanticInput('email-input');
+  readonly PASSWORD_INPUT = semanticInput('password-create-input');
+  readonly CONFIRM_PASSWORD_INPUT = semanticInput('password-confirm-input');
+  readonly REGISTER_BUTTON = semanticButton('create-account-button');
+  readonly LOGIN_LINK = semanticButton('sign-in-link');
   readonly ERROR_MESSAGE = "[data-testid='error-message'], .error, .alert-error, [role='alert']";
   readonly TERMS_CHECKBOX = "[data-testid='terms-checkbox'], input[name='terms'], input[name='acceptTerms']";
 
@@ -23,11 +22,8 @@ export class RegisterPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    // Flutter's go_router redirects direct /register URL to /login during auth init.
-    // Navigate to login first and click Sign up to reach the register screen reliably.
-    await super.navigate(`${this.baseUrl}/login`);
-    await this.click(this.SIGN_UP_LINK);
-    await this.waitForLoadState();
+    // The app uses hash routing — /#/register deep-links straight to the screen.
+    await super.navigate(`${this.baseUrl}/#/register`);
   }
 
   async isRegisterScreenDisplayed(): Promise<boolean> {

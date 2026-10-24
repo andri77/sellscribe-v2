@@ -33,7 +33,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL ?? 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: "off",
     ignoreHTTPSErrors: true,
     viewport: { width: 1920, height: 1080 },
   },

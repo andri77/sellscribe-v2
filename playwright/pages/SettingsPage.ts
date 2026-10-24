@@ -1,23 +1,24 @@
 import { Page } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage, semanticButton, semanticInput } from './BasePage';
 
 export class SettingsPage extends BasePage {
   private readonly baseUrl: string;
 
-  // Selectors confirmed from live Flutter DOM inspection of settings_screen.dart
-  // tooltip: 'Back' on IconButton → text content 'Back' in Flutter web semantic tree.
-  readonly BACK_BUTTON = "flt-semantics[role='button']:has-text('Back'), flt-semantics[role='button'][aria-label='Back'], button[aria-label='Back']";
+  // tooltip: 'Back' on the AppBar IconButton → text content 'Back' on the role=button node.
+  readonly BACK_BUTTON = semanticButton('Back');
   readonly PROFILE_SECTION = "flt-semantics:has-text('Profile'), [data-testid='profile-section']";
-  readonly EDIT_PROFILE_BUTTON = "flt-semantics[role='button']:has-text('Edit Profile'), [data-testid='edit-profile']";
-  readonly THEME_BUTTON = "flt-semantics[role='button']:has-text('Theme'), [data-testid='theme-button']";
+  readonly EDIT_PROFILE_BUTTON = semanticButton('edit-profile-tile');
+  readonly THEME_BUTTON = semanticButton('theme-button');
   readonly THEME_LIGHT = "[data-testid='theme-light'], flt-semantics:has-text('Light')";
   readonly THEME_DARK = "[data-testid='theme-dark'], flt-semantics:has-text('Dark')";
-  // Sign Out is a list tile button on the settings screen (not in popup menu)
-  readonly SIGN_OUT_BUTTON = "flt-semantics[role='button']:has-text('Sign Out'), [data-testid='sign-out']";
-  readonly FIRST_NAME_INPUT = "input[aria-label*='first name' i], [data-testid='first-name']";
-  readonly LAST_NAME_INPUT = "input[aria-label*='last name' i], [data-testid='last-name']";
-  readonly SAVE_BUTTON = "flt-semantics[role='button']:has-text('Save'), [data-testid='save-button']";
-  readonly CONFIRM_SIGN_OUT = "[data-testid='confirm-signout'], flt-semantics[role='button']:has-text('Confirm')";
+  // Sign Out is a list tile on the settings screen (not in the popup menu) and opens a
+  // confirmation dialog.
+  readonly SIGN_OUT_BUTTON = semanticButton('sign-out-button');
+  // Edit Profile screen (/settings/profile)
+  readonly FIRST_NAME_INPUT = semanticInput('first-name-input');
+  readonly LAST_NAME_INPUT = semanticInput('last-name-input');
+  readonly SAVE_BUTTON = semanticButton('save-profile-button');
+  readonly CONFIRM_SIGN_OUT = semanticButton('confirm-sign-out-button');
   readonly SUCCESS_MESSAGE = "[data-testid='success-message'], [role='alert']:has-text('success')";
   readonly ERROR_MESSAGE = "[data-testid='error-message'], [role='alert']:has-text('error')";
 
@@ -33,7 +34,7 @@ export class SettingsPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await super.navigate(`${this.baseUrl}/settings`);
+    await super.navigate(`${this.baseUrl}/#/settings`);
   }
 
   async isSettingsScreenDisplayed(): Promise<boolean> {
