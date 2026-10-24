@@ -31,6 +31,15 @@ const authHeaders = {
 // the SDK sends on plain writes is a no-op and deliberately not part of the contract.
 const RETURN_REPRESENTATION = /(^|,)\s*return=representation\s*(,|$)/;
 
+// single() responses come back as application/vnd.pgrst.object+json. The SDK ignores the
+// response Content-Type, and jsonBody() would otherwise pin it to exactly application/json.
+export const objectResponseHeaders = {
+  'Content-Type': regex(
+    /^application\/(vnd\.pgrst\.object\+)?json(;.*)?$/,
+    'application/vnd.pgrst.object+json; charset=utf-8',
+  ),
+};
+
 export const readHeaders = (accept?: 'array' | 'object') => ({
   ...authHeaders,
   'Accept-Profile': 'public',

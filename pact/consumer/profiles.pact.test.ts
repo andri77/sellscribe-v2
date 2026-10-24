@@ -3,6 +3,7 @@ import { USER_EMAIL, USER_ID } from '../src/data/fixtures';
 import { isoTimestamp } from '../src/matchers/common';
 import { createProfileBody, profileBody } from '../src/matchers/profile';
 import {
+  objectResponseHeaders,
   postgrestClient,
   postgrestPact,
   readHeaders,
@@ -73,7 +74,7 @@ describe('sellscribe-app → PostgREST /profiles', () => {
       .given('user U1 has a profile with 5 credits')
       .uponReceiving('a single request for the current profile')
       .withRequest('GET', PROFILES, (b) => b.query(byId).headers(readHeaders('object')))
-      .willRespondWith(200, (b) => b.jsonBody(profileBody))
+      .willRespondWith(200, (b) => b.headers(objectResponseHeaders).jsonBody(profileBody))
       .executeTest(async (mock) => {
         const res = await postgrestClient(mock.url).getProfileSingle(USER_ID);
         expect(res.status).toBe(200);

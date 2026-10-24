@@ -805,7 +805,7 @@
         },
         "headers": {
           "Content-Type": [
-            "application/json"
+            "application/vnd.pgrst.object+json; charset=utf-8"
           ]
         },
         "matchingRules": {
@@ -928,6 +928,17 @@
                 }
               ]
             }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^application\\/(vnd\\.pgrst\\.object\\+)?json(;.*)?$"
+                }
+              ]
+            }
           }
         },
         "status": 200
@@ -1013,7 +1024,7 @@
         },
         "headers": {
           "Content-Type": [
-            "application/json"
+            "application/vnd.pgrst.object+json; charset=utf-8"
           ]
         },
         "matchingRules": {
@@ -1130,6 +1141,17 @@
               "matchers": [
                 {
                   "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^application\\/(vnd\\.pgrst\\.object\\+)?json(;.*)?$"
                 }
               ]
             }
@@ -1279,7 +1301,7 @@
         },
         "headers": {
           "Content-Type": [
-            "application/json"
+            "application/vnd.pgrst.object+json; charset=utf-8"
           ]
         },
         "matchingRules": {
@@ -1399,6 +1421,17 @@
                 {
                   "match": "regex",
                   "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^application\\/(vnd\\.pgrst\\.object\\+)?json(;.*)?$"
                 }
               ]
             }
@@ -1740,7 +1773,7 @@
         },
         "headers": {
           "Content-Type": [
-            "application/json"
+            "application/vnd.pgrst.object+json; charset=utf-8"
           ]
         },
         "matchingRules": {
@@ -1860,6 +1893,17 @@
                 {
                   "match": "regex",
                   "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+                }
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^application\\/(vnd\\.pgrst\\.object\\+)?json(;.*)?$"
                 }
               ]
             }

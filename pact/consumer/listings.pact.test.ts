@@ -8,6 +8,7 @@ import {
 } from '../src/data/fixtures';
 import { listingRowBody } from '../src/matchers/listing';
 import {
+  objectResponseHeaders,
   postgrestClient,
   postgrestPact,
   readHeaders,
@@ -31,7 +32,7 @@ describe('sellscribe-app → PostgREST /listings', () => {
           .headers(writeHeaders({ returnRow: true }))
           .jsonBody({ ...newListingRow, user_id: uuid(USER_ID) }),
       )
-      .willRespondWith(201, (b) => b.jsonBody(listingRowBody()))
+      .willRespondWith(201, (b) => b.headers(objectResponseHeaders).jsonBody(listingRowBody()))
       .executeTest(async (mock) => {
         const res = await postgrestClient(mock.url).saveListing(newListingRow);
         expect(res.status).toBe(201);
@@ -63,7 +64,7 @@ describe('sellscribe-app → PostgREST /listings', () => {
       .withRequest('GET', LISTINGS, (b) =>
         b.query({ select: '*', id: `eq.${LISTING_ID}` }).headers(readHeaders('object')),
       )
-      .willRespondWith(200, (b) => b.jsonBody(listingRowBody()))
+      .willRespondWith(200, (b) => b.headers(objectResponseHeaders).jsonBody(listingRowBody()))
       .executeTest(async (mock) => {
         const res = await postgrestClient(mock.url).getListingById(LISTING_ID);
         expect(res.status).toBe(200);
@@ -89,7 +90,7 @@ describe('sellscribe-app → PostgREST /listings', () => {
           }),
       )
       .willRespondWith(200, (b) =>
-        b.jsonBody(listingRowBody({ ...exampleListingRow, ...edits })),
+        b.headers(objectResponseHeaders).jsonBody(listingRowBody({ ...exampleListingRow, ...edits })),
       )
       .executeTest(async (mock) => {
         const res = await postgrestClient(mock.url).updateListing(LISTING_ID, edits);
