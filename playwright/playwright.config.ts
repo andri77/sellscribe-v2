@@ -15,8 +15,9 @@ export default defineConfig({
 
   // Start the Flutter web server automatically if not already running.
   // reuseExistingServer=true means a manually-started server on :8080 is reused during dev.
+  // CI sets WEB_SERVER_CMD to serve a prebuilt release bundle, which skips the on-demand debug compile.
   webServer: {
-    command: 'flutter run -d web-server --web-port=8080',
+    command: process.env.WEB_SERVER_CMD ?? 'flutter run -d web-server --web-port=8080',
     // The Flutter app lives at the repo root, not in playwright/
     cwd: '..',
     url: process.env.BASE_URL ?? 'http://localhost:8080',

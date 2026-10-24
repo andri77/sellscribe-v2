@@ -36,6 +36,7 @@ jobs:
       # .env is a bundled Flutter asset (pubspec.yaml) but gitignored
       - name: Create app .env
         run: |
+          [ -n "${{ secrets.SUPABASE_URL }}" ] || echo "::warning::SUPABASE_URL secret is not set; login tests will fail"
           {
             echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}"
             echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}"
@@ -44,6 +45,11 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
+
+      # A release bundle renders in seconds; `flutter run` compiles on first request and
+      # outlasted the test timeouts on runners
+      - name: Build web app
+        run: flutter build web --release
 
       - name: Install dependencies
         run: cd playwright && npm ci
@@ -55,6 +61,7 @@ jobs:
         run: cd playwright && npx playwright test --project=${{ matrix.browser }}
         env:
           CI: true
+          WEB_SERVER_CMD: python3 -m http.server 8080 --directory build/web
           BASE_URL: ${{ secrets.BASE_URL || 'http://localhost:8080' }}
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
