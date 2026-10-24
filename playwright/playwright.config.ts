@@ -17,6 +17,8 @@ export default defineConfig({
   // reuseExistingServer=true means a manually-started server on :8080 is reused during dev.
   webServer: {
     command: 'flutter run -d web-server --web-port=8080',
+    // The Flutter app lives at the repo root, not in playwright/
+    cwd: '..',
     url: process.env.BASE_URL ?? 'http://localhost:8080',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
