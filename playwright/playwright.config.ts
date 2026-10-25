@@ -34,7 +34,9 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:8080',
-    trace: 'on-first-retry',
+    // Off in CI: saving a trace of the Flutter canvas hangs until the test times out, so a
+    // traced retry always failed. Published reports drop traces anyway (sanitize-report.py).
+    trace: process.env.CI ? 'off' : 'on-first-retry',
     screenshot: 'only-on-failure',
     video: "off",
     ignoreHTTPSErrors: true,
