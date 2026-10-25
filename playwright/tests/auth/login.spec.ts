@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, authenticated } from '../../fixtures';
 import { HomePage } from '../../pages/HomePage';
 import { testUser } from '../../utils/test-data';
 
@@ -59,6 +59,8 @@ test.describe('Login validation @regression', () => {
 });
 
 test.describe('Session persistence @regression', () => {
+  test.use(authenticated);
+
   test('user stays logged in after page refresh', async ({ loggedInPage, page }) => {
     expect(await loggedInPage.isHomeScreenDisplayed()).toBe(true);
     await page.reload();
@@ -69,9 +71,10 @@ test.describe('Session persistence @regression', () => {
     await loggedInPage.takeScreenshot('session-persists-after-refresh');
   });
 
-  test('logout returns to login screen', async ({ loggedInPage, page }) => {
-    await loggedInPage.signOut();
+  // Own session: signing out revokes it, so it must not be the shared one
+  test('logout returns to login screen', async ({ isolatedLoggedInPage, page }) => {
+    await isolatedLoggedInPage.signOut();
     await expect(page).toHaveURL(/login/);
-    await loggedInPage.takeScreenshot('logout-success');
+    await isolatedLoggedInPage.takeScreenshot('logout-success');
   });
 });

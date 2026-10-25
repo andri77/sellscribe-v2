@@ -1,5 +1,8 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, authenticated } from '../../fixtures';
 import { SettingsPage } from '../../pages/SettingsPage';
+
+// Starts from the session saved by auth.setup.ts instead of logging in through the UI
+test.use(authenticated);
 
 test.describe('Settings screen @smoke', () => {
   test('settings screen is displayed', async ({ loggedInPage, page }) => {
@@ -9,8 +12,9 @@ test.describe('Settings screen @smoke', () => {
     await settings.takeScreenshot('settings-screen');
   });
 
-  test('sign out from settings returns to login', async ({ loggedInPage, page }) => {
-    await loggedInPage.clickSettings();
+  // Own session: signing out revokes it, so it must not be the shared one
+  test('sign out from settings returns to login', async ({ isolatedLoggedInPage, page }) => {
+    await isolatedLoggedInPage.clickSettings();
     const settings = new SettingsPage(page);
     await settings.signOut();
     await expect(page).toHaveURL(/login/);

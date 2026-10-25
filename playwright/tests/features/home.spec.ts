@@ -1,5 +1,8 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, authenticated } from '../../fixtures';
 import { SettingsPage } from '../../pages/SettingsPage';
+
+// Starts from the session saved by auth.setup.ts instead of logging in through the UI
+test.use(authenticated);
 
 test.describe('Home Dashboard @smoke', () => {
   test('home screen is displayed after login', async ({ loggedInPage }) => {

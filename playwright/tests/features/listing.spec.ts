@@ -1,5 +1,8 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, authenticated } from '../../fixtures';
 import { mockListingResponse, validListingPayload } from '../../utils/test-data';
+
+// Starts from the session saved by auth.setup.ts instead of logging in through the UI
+test.use(authenticated);
 
 test.describe('Listing generation (mocked) @smoke', () => {
   test('mocked AI response renders all listing fields', async ({ loggedInPage, page }) => {

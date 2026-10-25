@@ -41,9 +41,15 @@ export default defineConfig({
     viewport: { width: 1920, height: 1080 },
   },
   projects: [
+    // Signs the test user in once and saves .auth/user.json for test.use(authenticated)
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
     // Firefox: API contract tests only — Flutter web does not render in Firefox.
     {
