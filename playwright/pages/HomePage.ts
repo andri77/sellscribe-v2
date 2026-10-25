@@ -25,12 +25,9 @@ export class HomePage extends BasePage {
     await super.navigate(`${this.baseUrl}/#/home`);
   }
 
+  // Waits on the quick-action IDs; 15 s covers the Supabase sign-in round trip after login.
   async isHomeScreenDisplayed(): Promise<boolean> {
-    return (
-      (await this.isTextPresent('SellScribe', 5000)) &&
-      ((await this.isTextPresent('Create Listing', 3000)) ||
-        (await this.isTextPresent('View History', 3000)))
-    );
+    return this.isVisible(`${this.CREATE_LISTING_BUTTON}, ${this.HISTORY_LINK}`, 15_000);
   }
 
   async getCreditsRemaining(): Promise<number> {
