@@ -39,3 +39,6 @@ coverage/
 # Logs
 *.log
 npm-debug.log*
+
+# Personal Claude Code settings (e.g. the experimental agent-teams flag)
+.claude/settings.local.json
