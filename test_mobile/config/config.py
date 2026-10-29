@@ -70,6 +70,10 @@ class AndroidConfig(Config):
             'appium:fullReset': False,
             'appium:newCommandTimeout': 300,
             'appium:autoGrantPermissions': True,
+            # Stability for Flutter: no system animations during tests, and a stuck
+            # UiAutomator2 command fails after 60 s instead of hanging for 4 minutes
+            'appium:disableWindowAnimation': True,
+            'appium:uiautomator2ServerReadTimeout': 60000,
         }
 
 

@@ -98,6 +98,12 @@ def driver(platform, device_name, app_path):
     # Set implicit wait
     driver.implicitly_wait(Config.IMPLICIT_WAIT)
 
+    if platform != "ios":
+        # UiAutomator2 waits for the app to go idle before every command, and a Flutter
+        # screen that is animating never does, which hung commands for minutes. The page
+        # objects wait explicitly, so skip the idle wait.
+        driver.update_settings({"waitForIdleTimeout": 0})
+
     yield driver
 
     # Teardown
