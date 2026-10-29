@@ -4,7 +4,8 @@ SellScribe Mobile App Test Configuration
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# test_mobile/.env (gitignored; see .env.example)
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 
 class Config:
@@ -15,14 +16,17 @@ class Config:
     APPIUM_URL = f'http://{APPIUM_HOST}:{APPIUM_PORT}'
     APPIUM_SERVER = f'http://{APPIUM_HOST}:{APPIUM_PORT}/wd/hub'
 
-    # Timeouts
-    IMPLICIT_WAIT = 10
-    EXPLICIT_WAIT = 30
+    # Timeouts. No implicit wait: page objects use explicit waits, and an implicit one
+    # makes every "is it absent?" check wait the full time.
+    IMPLICIT_WAIT = 0
+    EXPLICIT_WAIT = 20
     PAGE_LOAD_TIMEOUT = 60
 
     # Test User Credentials
     TEST_EMAIL = os.getenv('TEST_EMAIL', 'test@sellscribe.com')
     TEST_PASSWORD = os.getenv('TEST_PASSWORD', 'Password123!')
+    # Email domain for accounts the sign-up tests create; unset skips those tests
+    SIGNUP_DOMAIN = os.getenv('TEST_SIGNUP_DOMAIN', '')
 
     # App paths
     ANDROID_APK_PATH = os.path.join(

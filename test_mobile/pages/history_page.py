@@ -1,107 +1,58 @@
 """
 History Page Object for SellScribe Mobile App
 """
-from appium.webdriver.common.appiumby import AppiumBy
 from .base_page import BasePage
 
 
 class HistoryPage(BasePage):
     """Page object for Listing History screen"""
 
-    # Locators
-    PAGE_TITLE = "History"
-    NO_LISTINGS_TEXT = "No listings yet"
-    LISTING_CARD = "listing_card"
+    NEW_LISTING_BUTTON_ID = "new-listing-button"
+    LISTING_CARD_ID = "listing-card"
+    CREATE_FIRST_LISTING_BUTTON_ID = "create-first-listing-button"  # empty state
+    VIEW_BUTTON_ID = "listing-view-button"
+    EDIT_BUTTON_ID = "listing-edit-button"
+    DELETE_BUTTON_ID = "listing-delete-button"
+    CONFIRM_DELETE_BUTTON_ID = "confirm-delete-listing-button"
+    CANCEL_DELETE_BUTTON_ID = "cancel-delete-listing-button"
 
-    def is_history_screen_displayed(self) -> bool:
+    def is_history_screen_displayed(self, timeout: int = 10) -> bool:
         """Check if history screen is displayed"""
-        return self.is_any_text_present(
-            self.PAGE_TITLE, self.NO_LISTINGS_TEXT, "Listings", "My Listings", timeout=5
-        )
+        return self.is_present(self.by_id(self.NEW_LISTING_BUTTON_ID), timeout)
 
     def has_listings(self) -> bool:
-        """Check if there are any listings"""
-        return not self.is_text_present(self.NO_LISTINGS_TEXT, timeout=3)
+        """True if any listing card is shown (False when the empty state is shown)"""
+        cards, empty = self.by_id(self.LISTING_CARD_ID), self.by_id(self.CREATE_FIRST_LISTING_BUTTON_ID)
+        self.find_either(cards, empty)
+        return bool(self.find_all(cards))
+
+    def find_either(self, *locators, timeout: int = 15):
+        """Wait until one of the locators is present (the list has loaded)"""
+        from selenium.webdriver.support.ui import WebDriverWait
+        WebDriverWait(self.driver, timeout).until(
+            lambda d: any(d.find_elements(*loc) for loc in locators)
+        )
 
     def get_listing_count(self) -> int:
-        """Get count of listings displayed"""
-        try:
-            cards = self.find_elements(
-                AppiumBy.XPATH,
-                '//*[contains(@class, "Card") or contains(@class, "ListTile")]'
-            )
-            return len(cards)
-        except:
-            return 0
+        """Number of listing cards on screen"""
+        return len(self.find_all(self.by_id(self.LISTING_CARD_ID))) if self.has_listings() else 0
 
     def tap_listing(self, index: int = 0):
-        """Tap on a listing by index"""
-        try:
-            cards = self.find_elements(
-                AppiumBy.XPATH,
-                '//*[contains(@class, "Card") or contains(@class, "ListTile")]'
-            )
-            if len(cards) > index:
-                cards[index].click()
-        except:
-            pass
+        """Open a listing by index"""
+        self.find_all(self.by_id(self.VIEW_BUTTON_ID))[index].click()
         return self
 
     def tap_first_listing(self):
-        """Tap on the first listing"""
+        """Open the first listing"""
         return self.tap_listing(0)
 
-    def search_listing(self, query: str):
-        """Search for a listing"""
-        if self.is_text_present("Search"):
-            self.tap_by_text("Search")
-            active = self.driver.switch_to.active_element
-            active.send_keys(query)
-            self.hide_keyboard()
-        return self
-
-    def scroll_to_listing(self, title: str):
-        """Scroll to find a listing by title"""
-        self.scroll_to_text(title)
-        return self
-
-    def is_listing_displayed(self, title: str) -> bool:
-        """Check if a specific listing is displayed"""
-        return self.is_text_present(title)
-
     def delete_listing(self, index: int = 0):
-        """Delete a listing by index (swipe to delete)"""
-        try:
-            cards = self.find_elements(
-                AppiumBy.XPATH,
-                '//*[contains(@class, "Card") or contains(@class, "ListTile")]'
-            )
-            if len(cards) > index:
-                card = cards[index]
-                # Perform swipe left to reveal delete
-                self.swipe_element_left(card)
-                if self.is_text_present("Delete", timeout=2):
-                    self.tap_by_text("Delete")
-        except:
-            pass
-        return self
-
-    def swipe_element_left(self, element):
-        """Swipe element to the left"""
-        location = element.location
-        size = element.size
-        start_x = location['x'] + size['width'] - 10
-        end_x = location['x'] + 10
-        y = location['y'] + size['height'] // 2
-        self.driver.swipe(start_x, y, end_x, y, 300)
-
-    def refresh_list(self):
-        """Pull to refresh the list"""
-        self.pull_to_refresh()
-        return self
+        """Delete a listing by index and confirm"""
+        self.find_all(self.by_id(self.DELETE_BUTTON_ID))[index].click()
+        return self.tap(self.by_id(self.CONFIRM_DELETE_BUTTON_ID))
 
     def go_back(self):
-        """Go back to home"""
-        self._back_with_wait()
+        """Go back to home via the AppBar back button"""
+        self.tap_back()
         from .home_page import HomePage
         return HomePage(self.driver)

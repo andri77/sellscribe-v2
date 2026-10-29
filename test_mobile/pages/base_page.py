@@ -1,5 +1,13 @@
 """
 Base Page Object for SellScribe Mobile App
+
+Elements are located only by their semantic test IDs (see AGENTS.md), never by
+XPath, display text or position:
+
+- by_id(test_id): Flutter's Semantics(identifier:), which becomes the Android
+  resource-id (iOS: accessibilityIdentifier). Every semantic ID in the app sets it.
+- by_tooltip(name): an IconButton tooltip ('Back', 'profile-menu'), exposed as the
+  accessibility id (content-desc).
 """
 from appium.webdriver.webdriver import WebDriver
 from appium.webdriver.common.appiumby import AppiumBy
@@ -13,176 +21,74 @@ from config.config import Config
 class BasePage:
     """Base class for all page objects"""
 
+    BACK_BUTTON = "Back"  # AppBar back button tooltip
+
     def __init__(self, driver: WebDriver):
         self.driver = driver
-        self.wait = WebDriverWait(driver, Config.EXPLICIT_WAIT)
 
-    # Element Locator Strategies
-    # Flutter uses accessibility labels, text, and semantic identifiers
+    # Locators
 
-    def find_element(self, locator_type: str, locator_value: str, timeout: int = None):
-        """Find element with explicit wait"""
-        wait_time = timeout or Config.EXPLICIT_WAIT
-        wait = WebDriverWait(self.driver, wait_time)
-        return wait.until(
-            EC.presence_of_element_located((locator_type, locator_value))
+    def by_id(self, test_id: str):
+        """Locator for a Semantics(identifier:) test ID"""
+        if self.driver.capabilities.get('platformName', '').lower() == 'ios':
+            return AppiumBy.ACCESSIBILITY_ID, test_id
+        # UiAutomator2's plain ID strategy prefixes the app package ("<pkg>:id/..."),
+        # which Flutter's raw resource-ids don't have, so match the resource-id exactly
+        return AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().resourceId("{test_id}")'
+
+    def by_tooltip(self, tooltip: str):
+        """Locator for an IconButton / PopupMenuButton tooltip"""
+        return AppiumBy.ACCESSIBILITY_ID, tooltip
+
+    # Finding
+
+    def find(self, locator, timeout: int = None):
+        """Wait for an element to be present and return it"""
+        return WebDriverWait(self.driver, timeout or Config.EXPLICIT_WAIT).until(
+            EC.presence_of_element_located(locator)
         )
 
-    def find_elements(self, locator_type: str, locator_value: str, timeout: int = None):
-        """Find multiple elements"""
-        wait_time = timeout or Config.EXPLICIT_WAIT
-        wait = WebDriverWait(self.driver, wait_time)
-        return wait.until(
-            EC.presence_of_all_elements_located((locator_type, locator_value))
-        )
+    def find_all(self, locator):
+        """All matching elements, without waiting (empty list when none)"""
+        return self.driver.find_elements(*locator)
 
-    def find_by_text(self, text: str, exact: bool = True, timeout: int = None):
-        """Find element by text content (supports both native text and Flutter content-desc)"""
-        if exact:
-            # Try content-desc first (Flutter), then text (native)
-            locator = f'//*[@content-desc="{text}" or @text="{text}"]'
-        else:
-            locator = f'//*[contains(@content-desc, "{text}") or contains(@text, "{text}")]'
-        return self.find_element(AppiumBy.XPATH, locator, timeout)
+    def is_present(self, locator, timeout: int = 5) -> bool:
+        """True if the element appears within `timeout` seconds"""
+        try:
+            self.find(locator, timeout)
+            return True
+        except (TimeoutException, NoSuchElementException):
+            return False
 
-    def find_by_accessibility_id(self, accessibility_id: str, timeout: int = None):
-        """Find element by accessibility ID (preferred for Flutter)"""
-        return self.find_element(
-            AppiumBy.ACCESSIBILITY_ID, accessibility_id, timeout
-        )
-
-    def find_by_content_desc(self, content_desc: str, timeout: int = None):
-        """Find element by content description"""
-        return self.find_element(
-            AppiumBy.XPATH,
-            f'//*[@content-desc="{content_desc}"]',
-            timeout
-        )
+    def is_gone(self, locator, timeout: int = 5) -> bool:
+        """True if the element is absent, or disappears within `timeout` seconds"""
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: not d.find_elements(*locator)
+            )
+            return True
+        except TimeoutException:
+            return False
 
     # Actions
 
-    def tap(self, locator_type: str, locator_value: str, timeout: int = None):
-        """Tap on element"""
-        element = self.find_element(locator_type, locator_value, timeout)
-        element.click()
+    def tap(self, locator, timeout: int = None):
+        """Tap an element once it is present"""
+        self.find(locator, timeout).click()
         return self
 
-    def tap_by_text(self, text: str, timeout: int = None):
-        """Tap on element by text (uses contains match)"""
-        element = self.find_by_text(text, exact=False, timeout=timeout)
-        element.click()
-        return self
+    def tap_back(self):
+        """Tap the AppBar back button"""
+        return self.tap(self.by_tooltip(self.BACK_BUTTON))
 
-    def enter_text(self, locator_type: str, locator_value: str, text: str, clear: bool = True):
-        """Enter text into input field"""
-        element = self.find_element(locator_type, locator_value)
-        if clear:
-            element.clear()
-        element.send_keys(text)
-        return self
+    def type_into(self, test_id: str, value: str):
+        """Type into the text field with this test ID.
 
-    def get_text(self, locator_type: str, locator_value: str) -> str:
-        """Get text from element"""
-        element = self.find_element(locator_type, locator_value)
-        return element.text
-
-    def is_element_present(self, locator_type: str, locator_value: str, timeout: int = 5) -> bool:
-        """Check if element is present"""
-        try:
-            self.find_element(locator_type, locator_value, timeout)
-            return True
-        except (TimeoutException, NoSuchElementException):
-            return False
-
-    def is_text_present(self, text: str, timeout: int = 5) -> bool:
-        """Check if text is present on screen (uses contains match)"""
-        try:
-            self.find_by_text(text, exact=False, timeout=timeout)
-            return True
-        except (TimeoutException, NoSuchElementException):
-            return False
-
-    def is_any_text_present(self, *texts, timeout: int = 5) -> bool:
-        """Check if ANY of the given texts are present on screen"""
-        for text in texts:
-            if self.is_text_present(text, timeout=timeout):
-                return True
-        return False
-
-    def wait_for_element_visible(self, locator_type: str, locator_value: str, timeout: int = None):
-        """Wait for element to be visible"""
-        wait_time = timeout or Config.EXPLICIT_WAIT
-        wait = WebDriverWait(self.driver, wait_time)
-        return wait.until(
-            EC.visibility_of_element_located((locator_type, locator_value))
-        )
-
-    def wait_for_text(self, text: str, timeout: int = None):
-        """Wait for text to appear on screen (supports Flutter content-desc)"""
-        wait_time = timeout or Config.EXPLICIT_WAIT
-        wait = WebDriverWait(self.driver, wait_time)
-        return wait.until(
-            EC.presence_of_element_located(
-                (AppiumBy.XPATH, f'//*[contains(@content-desc, "{text}") or contains(@text, "{text}")]')
-            )
-        )
-
-    def scroll_down(self):
-        """Scroll down on screen"""
-        size = self.driver.get_window_size()
-        start_x = size['width'] // 2
-        start_y = size['height'] * 0.8
-        end_y = size['height'] * 0.2
-        self.driver.swipe(start_x, int(start_y), start_x, int(end_y), 800)
-        return self
-
-    def scroll_up(self):
-        """Scroll up on screen"""
-        size = self.driver.get_window_size()
-        start_x = size['width'] // 2
-        start_y = size['height'] * 0.2
-        end_y = size['height'] * 0.8
-        self.driver.swipe(start_x, int(start_y), start_x, int(end_y), 800)
-        return self
-
-    def scroll_to_text(self, text: str, max_scrolls: int = 5):
-        """Scroll until text is found"""
-        for _ in range(max_scrolls):
-            if self.is_text_present(text, timeout=2):
-                return self
-            self.scroll_down()
-        raise Exception(f"Text '{text}' not found after {max_scrolls} scrolls")
-
-    def pull_to_refresh(self):
-        """Pull to refresh gesture"""
-        size = self.driver.get_window_size()
-        start_x = size['width'] // 2
-        start_y = size['height'] * 0.3
-        end_y = size['height'] * 0.8
-        self.driver.swipe(start_x, int(start_y), start_x, int(end_y), 800)
-        return self
-
-    def _back_with_wait(self, seconds: float = 1.5):
-        """Navigate back and wait for screen transition to settle"""
+        The ID sits on Flutter's Semantics wrapper, so tap it to focus the real input
+        underneath, then type into the focused (active) element.
+        """
         import time
-        self.driver.back()
-        time.sleep(seconds)
-
-    def go_back(self):
-        """Press back button"""
-        self._back_with_wait()
-        return self
-
-    def _enter_field_by_index(self, index: int, value: str):
-        """Type into the nth android.widget.EditText on screen (0-based index).
-        Flutter input fields have empty content-desc, so accessibility_id fails.
-        XPath positional query fetches a fresh reference each time, avoiding
-        StaleElementReferenceException caused by Flutter re-renders mid-transition."""
-        import time
-        # XPath position() is 1-based; re-query on each call for a live reference
-        xpath = f'(//android.widget.EditText)[{index + 1}]'
-        field = self.find_element(AppiumBy.XPATH, xpath, timeout=10)
-        field.click()
+        self.tap(self.by_id(test_id))
         time.sleep(0.3)
         active = self.driver.switch_to.active_element
         active.clear()
@@ -190,19 +96,36 @@ class BasePage:
         self.hide_keyboard()
         return self
 
+    def read_text(self, test_id: str) -> str:
+        """Visible text of the element with this test ID"""
+        element = self.find(self.by_id(test_id))
+        return element.get_attribute('content-desc') or element.text or ''
+
     def hide_keyboard(self):
-        """Hide keyboard if visible"""
+        """Hide the soft keyboard if it is showing"""
         try:
-            self.driver.hide_keyboard()
-        except:
-            pass  # Keyboard might not be visible
+            if self.driver.is_keyboard_shown():
+                self.driver.hide_keyboard()
+        except Exception:
+            pass  # No soft keyboard (e.g. emulator with hardware keyboard)
         return self
+
+    def scroll_down(self):
+        """Scroll down on screen"""
+        size = self.driver.get_window_size()
+        x = size['width'] // 2
+        self.driver.swipe(x, int(size['height'] * 0.8), x, int(size['height'] * 0.2), 800)
+        return self
+
+    def scroll_to(self, locator, max_scrolls: int = 5):
+        """Scroll down until the element is present"""
+        for _ in range(max_scrolls):
+            if self.is_present(locator, timeout=2):
+                return self
+            self.scroll_down()
+        raise NoSuchElementException(f"{locator[1]} not found after {max_scrolls} scrolls")
 
     def take_screenshot(self, name: str):
         """Take screenshot"""
         self.driver.save_screenshot(f'screenshots/{name}.png')
         return self
-
-    def get_page_source(self) -> str:
-        """Get page source for debugging"""
-        return self.driver.page_source

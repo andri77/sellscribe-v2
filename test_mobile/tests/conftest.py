@@ -105,38 +105,15 @@ def driver(platform, device_name, app_path):
 
 
 def _wait_for_login_screen(driver, timeout=30):
-    """Restart app and block until login screen is visible (Welcome back text)."""
-    import time
-    from pages import LoginPage
+    """Block until the login screen is ready.
 
-    app_id = 'com.sellscribe.app'
-    try:
-        driver.terminate_app(app_id)
-        time.sleep(2)
-    except Exception:
-        pass
-    try:
-        driver.activate_app(app_id)
-    except Exception:
-        pass
-
+    Each test gets a new session with noReset=False, which clears the app's data, so
+    the app always starts signed out. The splash screen plus Supabase init take a
+    few seconds, hence the generous timeout.
+    """
     login_page = LoginPage(driver)
-    # Splash screen takes 2 s + Supabase network init — wait up to `timeout` s
-    try:
-        login_page.wait_for_text('Welcome back', timeout=timeout)
-    except Exception:
-        # Fallback: try waiting for the email field directly
-        try:
-            from appium.webdriver.common.appiumby import AppiumBy
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (AppiumBy.ACCESSIBILITY_ID, 'email-input')
-                )
-            )
-        except Exception:
-            pass  # Let individual test assertions catch the failure
+    assert login_page.is_login_screen_displayed(timeout=timeout), \
+        "Login screen did not appear after app launch"
     return login_page
 
 
@@ -160,6 +137,15 @@ def ensure_on_login_screen(driver):
 def login_page(driver):
     """Return LoginPage — waits for login screen to be ready after app launch."""
     return _wait_for_login_screen(driver)
+
+
+@pytest.fixture(scope="function")
+def logged_in_home(driver, ensure_on_login_screen, test_user):
+    """Signed in as the test user, on the home screen"""
+    ensure_on_login_screen.login(test_user["email"], test_user["password"])
+    home_page = HomePage(driver)
+    assert home_page.is_home_screen_displayed(), "Home screen should appear after sign-in"
+    return home_page
 
 
 @pytest.fixture(scope="function")
@@ -222,10 +208,17 @@ def test_user():
 
 @pytest.fixture(scope="session")
 def new_user():
-    """Generate unique user for registration tests"""
+    """Generate unique user for registration tests.
+
+    These tests create real Supabase accounts. Supabase rejects example.com addresses,
+    so the domain must be one it accepts, set as TEST_SIGNUP_DOMAIN in test_mobile/.env.
+    """
+    if not Config.SIGNUP_DOMAIN:
+        pytest.skip("Set TEST_SIGNUP_DOMAIN in test_mobile/.env to run sign-up tests "
+                    "(Supabase rejects example.com; each run creates real accounts)")
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     return {
-        "email": f"newuser_{timestamp}@example.com",
+        "email": f"newuser_{timestamp}@{Config.SIGNUP_DOMAIN}",
         "password": "NewPass123!",
         "name": f"New User {timestamp}"
     }

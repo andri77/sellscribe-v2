@@ -1,60 +1,54 @@
 """
 Settings Page Object for SellScribe Mobile App
 """
-from appium.webdriver.common.appiumby import AppiumBy
 from .base_page import BasePage
 
 
 class SettingsPage(BasePage):
     """Page object for Settings screen"""
 
-    # Actual content-desc values discovered via adb uiautomator dump.
-    # Tile content-descs merge all child text: e.g. 'Theme\nSystem'.
-    # We match by prefix with exact=False so the subtitle doesn't break the locator.
-    SETTINGS_TITLE = "Settings"
-    SIGN_OUT_CD = "Sign Out"
-    THEME_PREFIX = "Theme"
-    PAYMENT_METHODS_PREFIX = "Payment Methods"
-    PURCHASE_CREDITS_PREFIX = "Purchase Credits"
+    EDIT_PROFILE_TILE_ID = "edit-profile-tile"
+    THEME_BUTTON_ID = "theme-button"
+    PAYMENT_METHODS_TILE_ID = "payment-methods-tile"
+    PURCHASE_CREDITS_TILE_ID = "purchase-credits-tile"
+    SIGN_OUT_BUTTON_ID = "sign-out-button"
+    CONFIRM_SIGN_OUT_BUTTON_ID = "confirm-sign-out-button"
+    CANCEL_SIGN_OUT_BUTTON_ID = "cancel-sign-out-button"
+
+    # Theme bottom sheet options
+    THEME_OPTION_IDS = {
+        "Light": "theme-light-option",
+        "Dark": "theme-dark-option",
+        "System": "theme-system-option",
+    }
     THEME_LIGHT = "Light"
     THEME_DARK = "Dark"
     THEME_SYSTEM = "System"
 
-    def is_settings_screen_displayed(self) -> bool:
+    def is_settings_screen_displayed(self, timeout: int = 10) -> bool:
         """Check if settings screen is displayed"""
-        return self.is_any_text_present(
-            self.SETTINGS_TITLE, self.SIGN_OUT_CD, "Appearance", self.THEME_PREFIX, timeout=5
-        )
+        return self.is_present(self.by_id(self.EDIT_PROFILE_TILE_ID), timeout)
+
+    def is_option_displayed(self, test_id: str) -> bool:
+        """Check if a settings tile is displayed"""
+        return self.is_present(self.by_id(test_id))
 
     def tap_edit_profile(self):
-        """Tap edit profile tile (first tappable tile; contains user name/email)"""
-        # The edit-profile tile's content-desc is 'T\nTEST AGENT\ntest@sellscribe.com'
-        # (avatar initial + name + email). Tap the first clickable tile on the screen
-        # since it's always the profile tile.
-        elements = self.driver.find_elements(
-            AppiumBy.XPATH,
-            '//*[@clickable="true" and contains(@content-desc, "@")]'
-        )
-        if elements:
-            elements[0].click()
-        else:
-            # Fallback: tap by partial text match on email domain
-            self.find_by_text("sellscribe.com", exact=False).click()
+        """Tap the edit profile tile"""
+        self.tap(self.by_id(self.EDIT_PROFILE_TILE_ID))
         from .profile_edit_page import ProfileEditPage
         return ProfileEditPage(self.driver)
 
     def tap_theme(self):
-        """Tap theme option tile"""
-        self.find_by_text(self.THEME_PREFIX, exact=False).click()
-        return self
+        """Open the theme picker"""
+        return self.tap(self.by_id(self.THEME_BUTTON_ID))
 
     def select_theme(self, theme: str):
-        """Select theme from bottom sheet"""
-        import time
+        """Pick a theme from the bottom sheet"""
+        option = self.by_id(self.THEME_OPTION_IDS[theme])
         self.tap_theme()
-        self.wait_for_text("Select Theme")
-        self.tap_by_text(theme)
-        time.sleep(2.5)
+        self.tap(option)
+        self.is_gone(option)  # sheet closed
         return self
 
     def set_light_theme(self):
@@ -70,62 +64,46 @@ class SettingsPage(BasePage):
         return self.select_theme(self.THEME_SYSTEM)
 
     def get_current_theme(self) -> str:
-        """Get current theme setting"""
-        try:
-            theme_element = self.find_by_text(self.THEME_PREFIX, exact=False)
-            return theme_element.text
-        except:
-            return ""
+        """Current theme, shown as the theme tile's subtitle"""
+        tile = self.find(self.by_id(self.THEME_BUTTON_ID))
+        # Flutter merges the tile's text into one description: "<id>\nTheme\n<mode>"
+        return (tile.get_attribute('content-desc') or '').split('\n')[-1]
 
     def tap_payment_methods(self):
-        """Tap payment methods tile"""
-        self.find_by_text(self.PAYMENT_METHODS_PREFIX, exact=False).click()
+        """Tap the payment methods tile"""
+        self.tap(self.by_id(self.PAYMENT_METHODS_TILE_ID))
         from .payment_methods_page import PaymentMethodsPage
         return PaymentMethodsPage(self.driver)
 
     def tap_purchase_credits(self):
-        """Tap purchase credits tile"""
-        self.find_by_text(self.PURCHASE_CREDITS_PREFIX, exact=False).click()
+        """Tap the purchase credits tile"""
+        self.tap(self.by_id(self.PURCHASE_CREDITS_TILE_ID))
         from .purchase_credits_page import PurchaseCreditsPage
         return PurchaseCreditsPage(self.driver)
 
     def tap_sign_out(self):
-        """Tap sign out button (content-desc='Sign Out')"""
-        self.find_by_text(self.SIGN_OUT_CD).click()
-        return self
+        """Tap the sign out tile (opens the confirmation dialog)"""
+        return self.tap(self.by_id(self.SIGN_OUT_BUTTON_ID))
+
+    def is_sign_out_dialog_displayed(self) -> bool:
+        """Check if the sign out confirmation dialog is displayed"""
+        return self.is_present(self.by_id(self.CONFIRM_SIGN_OUT_BUTTON_ID))
 
     def confirm_sign_out(self):
-        """Confirm sign out in dialog"""
-        import time
-        time.sleep(1)
-        for label in ["Sign Out", "Confirm", "Yes"]:
-            if self.is_text_present(label, timeout=3):
-                buttons = self.find_elements(
-                    AppiumBy.XPATH,
-                    f'//*[@text="{label}" or @content-desc="{label}"]'
-                )
-                if buttons:
-                    buttons[-1].click()
-                    break
-        time.sleep(1)
+        """Confirm sign out in the dialog"""
+        self.tap(self.by_id(self.CONFIRM_SIGN_OUT_BUTTON_ID))
         from .login_page import LoginPage
         return LoginPage(self.driver)
 
+    def cancel_sign_out(self):
+        """Cancel sign out in the dialog"""
+        cancel = self.by_id(self.CANCEL_SIGN_OUT_BUTTON_ID)
+        self.tap(cancel)
+        self.is_gone(cancel)
+        return self
+
     def go_back(self):
-        """Go back to home via AppBar back button or Android back"""
-        import time
-        try:
-            # Flutter AppBar back button content-desc is typically 'Navigate up' or 'Back'
-            back = self.driver.find_elements(
-                AppiumBy.XPATH,
-                '//*[@content-desc="Navigate up" or @content-desc="Back"]'
-            )
-            if back:
-                back[0].click()
-            else:
-                self.driver.back()
-        except Exception:
-            self.driver.back()
-        time.sleep(3.0)
+        """Go back to home via the AppBar back button"""
+        self.tap_back()
         from .home_page import HomePage
         return HomePage(self.driver)
