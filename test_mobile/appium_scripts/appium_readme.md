@@ -4,6 +4,7 @@ This guide provides detailed instructions for setting up Appium to test the Sell
 
 ## Table of Contents
 
+0. [Quick Setup (macOS, CLI only)](#quick-setup-macos-cli-only)
 1. [Prerequisites](#prerequisites)
 2. [System Requirements](#system-requirements)
 3. [Installation Steps](#installation-steps)
@@ -11,6 +12,55 @@ This guide provides detailed instructions for setting up Appium to test the Sell
 5. [iOS Setup](#ios-setup)
 6. [Running Tests](#running-tests)
 7. [Troubleshooting](#troubleshooting)
+
+---
+
+## Quick Setup (macOS, CLI only)
+
+`setup_mobile.sh` installs everything the Android suite needs from the terminal. No Android
+Studio is required. It is safe to re-run: each step skips what is already installed.
+
+**You need first:** [Homebrew](https://brew.sh), Flutter, Node.js, and the app's
+`.env` at the repo root (the APK bundles it).
+
+```bash
+./test_mobile/appium_scripts/setup_mobile.sh
+```
+
+| Step | What it installs | How |
+|------|------------------|-----|
+| 1 | JDK 17 | `brew install openjdk@17` |
+| 2 | Android command-line tools in `~/Library/Android/sdk` | `brew install --cask android-commandlinetools` to bootstrap `sdkmanager` |
+| 3 | platform-tools, emulator, Android 36 platform, build-tools 35, NDK 28.2, API 35 system image | `sdkmanager` (licenses accepted automatically) |
+| 4 | Emulator `sellscribe_api35` (Pixel 7) | `avdmanager create avd` |
+| 5 | Flutter pointed at that SDK and JDK | `flutter config`, `flutter doctor --android-licenses` |
+| 6 | Appium with the UiAutomator2 driver | `npm install -g appium`, `appium driver install uiautomator2` |
+| 7 | Python 3.13 and the test dependencies (replaces a venv that can't run) | `brew install python@3.13`, `pip install -r requirements.txt` into `test_mobile/venv` |
+| 8 | SellScribe debug APK | `flutter build apk --debug` |
+
+The first run downloads several GB and takes a while. Options:
+
+```bash
+./test_mobile/appium_scripts/setup_mobile.sh --skip-apk   # don't build the APK
+./test_mobile/appium_scripts/setup_mobile.sh --api 36     # different emulator API level
+```
+
+Then run the suite. It boots the emulator and starts Appium, and stops both afterwards:
+
+```bash
+./test_mobile/appium_scripts/launch_and_test.sh            # all tests
+./test_mobile/appium_scripts/launch_and_test.sh -m smoke   # smoke only
+./scripts/run-all-tests.sh                                  # web + API + mobile
+```
+
+After app changes, rebuild the APK with `flutter build apk --debug` and uninstall the old
+one (`adb uninstall com.sellscribe.app`): the runner only installs the APK when the app
+is missing from the emulator.
+
+The script doesn't touch your shell profile. To use `adb`, `emulator` or `sdkmanager`
+directly, add the exports it prints at the end to `~/.zshrc`.
+
+The manual steps below are the equivalent for other platforms, or for Android Studio users.
 
 ---
 

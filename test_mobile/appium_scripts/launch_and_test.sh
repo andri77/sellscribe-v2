@@ -45,6 +45,11 @@ if [[ -z "${ANDROID_HOME:-}" ]]; then
 fi
 export PATH="$PATH:${ANDROID_HOME:-}/platform-tools:${ANDROID_HOME:-}/emulator"
 ADB_CMD="${ANDROID_HOME}/platform-tools/adb"
+
+# Appium's UiAutomator2 driver needs a JDK; setup_mobile.sh installs openjdk@17
+if [[ -z "${JAVA_HOME:-}" ]] && command -v brew &>/dev/null && brew list openjdk@17 &>/dev/null; then
+  export JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home"
+fi
 EMULATOR_CMD="${ANDROID_HOME}/emulator/emulator"
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
@@ -159,7 +164,7 @@ if [[ "$PLATFORM" == "android" ]]; then
   else
     AVD_NAME=$("${EMULATOR_CMD}" -list-avds 2>/dev/null | head -1 || true)
     if [[ -z "$AVD_NAME" ]]; then
-      err "No AVD found. Create one in Android Studio > Device Manager."
+      err "No AVD found. Run ./appium_scripts/setup_mobile.sh to create one."
       exit 1
     fi
 
@@ -225,7 +230,7 @@ if lsof -Pi :4723 -sTCP:LISTEN -t >/dev/null 2>&1; then
   ok "Appium already running on port 4723."
 else
   if ! command -v appium &>/dev/null; then
-    err "Appium not installed. Run: npm install -g appium"
+    err "Appium not installed. Run ./appium_scripts/setup_mobile.sh"
     exit 1
   fi
 
