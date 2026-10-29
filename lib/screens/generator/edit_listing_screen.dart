@@ -183,6 +183,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
       return Scaffold(
         appBar: AppBar(
           leading: IconButton(
+            tooltip: 'Back',
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.go(AppRoutes.history),
           ),
@@ -197,6 +198,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             if (_hasChanges) {

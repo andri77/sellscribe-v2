@@ -216,6 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           alignment: Alignment.centerRight,
                           child: Semantics(
                             label: 'forgot-password-button',
+                            identifier: 'forgot-password-button',
                             child: TextButton(
                               onPressed: () {
                                 // TODO: Implement forgot password
@@ -246,6 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Semantics(
                               label: 'sign-up-link',
+                              identifier: 'sign-up-link',
                               child: TextButton(
                                 onPressed: () => context.go(AppRoutes.register),
                                 child: const Text('Sign up'),

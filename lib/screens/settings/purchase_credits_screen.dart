@@ -81,6 +81,7 @@ class _PurchaseCreditsScreenState extends State<PurchaseCreditsScreen> {
       appBar: AppBar(
         title: const Text('Purchase Credits'),
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
@@ -106,12 +107,15 @@ class _PurchaseCreditsScreenState extends State<PurchaseCreditsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '${user?.creditsRemaining ?? 0}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
+                Semantics(
+                  identifier: 'current-credits',
+                  child: Text(
+                    '${user?.creditsRemaining ?? 0}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const Text(
@@ -134,109 +138,113 @@ class _PurchaseCreditsScreenState extends State<PurchaseCreditsScreen> {
                 final package = _packages[index];
                 final isSelected = _selectedPackage == package;
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedPackage = package;
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppTheme.primaryColor.withOpacity(0.1)
-                          : Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
+                return Semantics(
+                  identifier: 'credit-package-${package.credits}',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPackage = package;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? AppTheme.primaryColor
-                            : Theme.of(context).dividerColor,
-                        width: isSelected ? 2 : 1,
+                            ? AppTheme.primaryColor.withOpacity(0.1)
+                            : Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppTheme.primaryColor
+                              : Theme.of(context).dividerColor,
+                          width: isSelected ? 2 : 1,
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Credits
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    '${package.credits} Credits',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                  if (package.badge != null) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.successColor,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        package.badge!,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                      child: Row(
+                        children: [
+                          // Credits
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${package.credits} Credits',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
+                                    if (package.badge != null) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.successColor,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          package.badge!,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '\$${package.pricePerCredit.toStringAsFixed(2)} per credit',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.textMuted,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Price
-                        Text(
-                          '\$${package.price.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryColor,
-                              ),
-                        ),
-
-                        // Selection indicator
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppTheme.primaryColor
-                                  : AppTheme.textMuted,
-                              width: 2,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$${package.pricePerCredit.toStringAsFixed(2)} per credit',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: AppTheme.textMuted,
+                                      ),
+                                ),
+                              ],
                             ),
-                            color: isSelected ? AppTheme.primaryColor : null,
                           ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
-                      ],
+
+                          // Price
+                          Text(
+                            '\$${package.price.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
+                          ),
+
+                          // Selection indicator
+                          const SizedBox(width: 12),
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.textMuted,
+                                width: 2,
+                              ),
+                              color: isSelected ? AppTheme.primaryColor : null,
+                            ),
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -247,13 +255,16 @@ class _PurchaseCreditsScreenState extends State<PurchaseCreditsScreen> {
           // Purchase Button
           Padding(
             padding: const EdgeInsets.all(16),
-            child: AppButton(
-              text: _selectedPackage != null
-                  ? 'Purchase for \$${_selectedPackage!.price.toStringAsFixed(2)}'
-                  : 'Select a Package',
-              onPressed: _selectedPackage != null ? _purchaseCredits : null,
-              isLoading: _isLoading,
-              fullWidth: true,
+            child: Semantics(
+              identifier: 'purchase-button',
+              child: AppButton(
+                text: _selectedPackage != null
+                    ? 'Purchase for \$${_selectedPackage!.price.toStringAsFixed(2)}'
+                    : 'Select a Package',
+                onPressed: _selectedPackage != null ? _purchaseCredits : null,
+                isLoading: _isLoading,
+                fullWidth: true,
+              ),
             ),
           ),
         ],

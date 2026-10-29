@@ -47,6 +47,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.home),
         ),

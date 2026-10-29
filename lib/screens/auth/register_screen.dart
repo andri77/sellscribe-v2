@@ -281,6 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             Semantics(
                               label: 'sign-in-link',
+                              identifier: 'sign-in-link',
                               child: TextButton(
                                 onPressed: () => context.go(AppRoutes.login),
                                 child: const Text('Sign in'),

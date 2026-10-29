@@ -83,12 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppTheme.secondaryColor,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      '${auth.creditsRemaining}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        color: AppTheme.secondaryColor,
+                    Semantics(
+                      identifier: 'credits-count',
+                      child: Text(
+                        '${auth.creditsRemaining}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: AppTheme.secondaryColor,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -146,24 +149,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const PopupMenuDivider(),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings, size: 18, color: AppTheme.textSecondary),
-                    SizedBox(width: 8),
-                    Text('Settings'),
-                  ],
+                child: Semantics(
+                  identifier: 'settings-menu-item',
+                  child: const Row(
+                    children: [
+                      Icon(Icons.settings, size: 18, color: AppTheme.textSecondary),
+                      SizedBox(width: 8),
+                      Text('Settings'),
+                    ],
+                  ),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, size: 18, color: AppTheme.errorColor),
-                    SizedBox(width: 8),
-                    Text('Sign out', style: TextStyle(color: AppTheme.errorColor)),
-                  ],
+                child: Semantics(
+                  identifier: 'sign-out-menu-item',
+                  child: const Row(
+                    children: [
+                      Icon(Icons.logout, size: 18, color: AppTheme.errorColor),
+                      SizedBox(width: 8),
+                      Text('Sign out', style: TextStyle(color: AppTheme.errorColor)),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -387,6 +396,7 @@ class _ActionCardState extends State<_ActionCard> {
 
     return Semantics(
       label: widget.semanticsLabel,
+      identifier: widget.semanticsLabel,
       button: widget.semanticsLabel != null,
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),

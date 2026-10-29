@@ -51,7 +51,8 @@ class AppButton extends StatelessWidget {
         : SizedBox(height: height, child: button);
 
     if (semanticsLabel != null) {
-      return Semantics(label: semanticsLabel, child: sized);
+      // identifier becomes the Android resource-id the Appium tests locate
+      return Semantics(label: semanticsLabel, identifier: semanticsLabel, child: sized);
     }
     return sized;
   }

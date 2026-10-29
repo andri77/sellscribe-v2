@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'config/app_config.dart';
 import 'config/routes.dart';
@@ -22,8 +23,26 @@ void main() async {
   runApp(const SellScribeApp());
 }
 
-class SellScribeApp extends StatelessWidget {
+class SellScribeApp extends StatefulWidget {
   const SellScribeApp({super.key});
+
+  @override
+  State<SellScribeApp> createState() => _SellScribeAppState();
+}
+
+class _SellScribeAppState extends State<SellScribeApp> {
+  GoRouter? _router;
+  bool? _routerIsAuthenticated;
+
+  // A new router restarts navigation, so only build one when the auth state flips.
+  // Rebuilding it on every theme or profile change sent the user back to the start.
+  GoRouter _routerFor(bool isAuthenticated) {
+    if (_router == null || _routerIsAuthenticated != isAuthenticated) {
+      _router = AppRoutes.createRouter(isAuthenticated);
+      _routerIsAuthenticated = isAuthenticated;
+    }
+    return _router!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +54,7 @@ class SellScribeApp extends StatelessWidget {
       ],
       child: Consumer2<AuthProvider, ThemeProvider>(
         builder: (context, authProvider, themeProvider, _) {
-          final router = AppRoutes.createRouter(authProvider.isAuthenticated);
+          final router = _routerFor(authProvider.isAuthenticated);
 
           return MaterialApp.router(
             title: AppConfig.appName,

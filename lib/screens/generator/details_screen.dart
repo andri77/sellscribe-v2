@@ -137,6 +137,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.upload),
         ),
@@ -171,6 +172,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   // Product Name
                   AppTextField(
                     label: 'Product Name *',
+                    semanticsLabel: 'product-name-input',
                     hint: 'e.g., Bamboo Wireless Charging Pad',
                     controller: _productNameController,
                     prefixIcon: Icons.inventory_2_outlined,
@@ -220,6 +222,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   // Key Features
                   AppTextField(
                     label: 'Key Features',
+                    semanticsLabel: 'key-features-input',
                     hint: 'e.g., Eco-friendly materials, Fast charging, LED indicator, Non-slip base',
                     controller: _keyFeaturesController,
                     prefixIcon: Icons.list_alt_outlined,
@@ -230,6 +233,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   // Target Audience
                   AppTextField(
                     label: 'Target Audience (Optional)',
+                    semanticsLabel: 'target-audience-input',
                     hint: 'e.g., Tech enthusiasts, Eco-conscious consumers, Office workers',
                     controller: _targetAudienceController,
                     prefixIcon: Icons.people_outline,
@@ -350,11 +354,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     children: [
                       AppButton(
                         text: 'Back',
+                        semanticsLabel: 'details-back-button',
                         variant: AppButtonVariant.outline,
                         onPressed: () => context.go(AppRoutes.upload),
                       ),
                       AppButton(
                         text: 'Generate Listing',
+                        semanticsLabel: 'generate-listing-button',
                         icon: Icons.auto_awesome,
                         onPressed: _handleGenerate,
                       ),

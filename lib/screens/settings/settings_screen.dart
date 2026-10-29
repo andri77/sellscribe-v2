@@ -33,6 +33,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Semantics(
                   label: 'edit-profile-tile',
+                  identifier: 'edit-profile-tile',
                   button: true,
                   child: ListTile(
                     leading: CircleAvatar(
@@ -60,6 +61,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Semantics(
                   label: 'theme-button',
+                  identifier: 'theme-button',
                   child: ListTile(
                     leading: Icon(themeProvider.themeModeIcon),
                     title: const Text('Theme'),
@@ -80,6 +82,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Semantics(
                   label: 'payment-methods-tile',
+                  identifier: 'payment-methods-tile',
                   button: true,
                   child: ListTile(
                     leading: const Icon(Icons.credit_card),
@@ -92,6 +95,7 @@ class SettingsScreen extends StatelessWidget {
                 const Divider(height: 1),
                 Semantics(
                   label: 'purchase-credits-tile',
+                  identifier: 'purchase-credits-tile',
                   button: true,
                   child: ListTile(
                     leading: const Icon(Icons.monetization_on),
@@ -113,6 +117,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Semantics(
                   label: 'sign-out-button',
+                  identifier: 'sign-out-button',
                   child: ListTile(
                     leading: const Icon(Icons.logout, color: AppTheme.errorColor),
                     title: const Text(
@@ -159,38 +164,47 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.light_mode),
-              title: const Text('Light'),
-              trailing: themeProvider.themeMode == AppThemeMode.light
-                  ? const Icon(Icons.check, color: AppTheme.primaryColor)
-                  : null,
-              onTap: () {
-                themeProvider.setThemeMode(AppThemeMode.light);
-                Navigator.pop(context);
-              },
+            Semantics(
+              identifier: 'theme-light-option',
+              child: ListTile(
+                leading: const Icon(Icons.light_mode),
+                title: const Text('Light'),
+                trailing: themeProvider.themeMode == AppThemeMode.light
+                    ? const Icon(Icons.check, color: AppTheme.primaryColor)
+                    : null,
+                onTap: () {
+                  themeProvider.setThemeMode(AppThemeMode.light);
+                  Navigator.pop(context);
+                },
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.dark_mode),
-              title: const Text('Dark'),
-              trailing: themeProvider.themeMode == AppThemeMode.dark
-                  ? const Icon(Icons.check, color: AppTheme.primaryColor)
-                  : null,
-              onTap: () {
-                themeProvider.setThemeMode(AppThemeMode.dark);
-                Navigator.pop(context);
-              },
+            Semantics(
+              identifier: 'theme-dark-option',
+              child: ListTile(
+                leading: const Icon(Icons.dark_mode),
+                title: const Text('Dark'),
+                trailing: themeProvider.themeMode == AppThemeMode.dark
+                    ? const Icon(Icons.check, color: AppTheme.primaryColor)
+                    : null,
+                onTap: () {
+                  themeProvider.setThemeMode(AppThemeMode.dark);
+                  Navigator.pop(context);
+                },
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.settings_brightness),
-              title: const Text('System'),
-              trailing: themeProvider.themeMode == AppThemeMode.system
-                  ? const Icon(Icons.check, color: AppTheme.primaryColor)
-                  : null,
-              onTap: () {
-                themeProvider.setThemeMode(AppThemeMode.system);
-                Navigator.pop(context);
-              },
+            Semantics(
+              identifier: 'theme-system-option',
+              child: ListTile(
+                leading: const Icon(Icons.settings_brightness),
+                title: const Text('System'),
+                trailing: themeProvider.themeMode == AppThemeMode.system
+                    ? const Icon(Icons.check, color: AppTheme.primaryColor)
+                    : null,
+                onTap: () {
+                  themeProvider.setThemeMode(AppThemeMode.system);
+                  Navigator.pop(context);
+                },
+              ),
             ),
             const SizedBox(height: 16),
           ],
@@ -206,12 +220,16 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Sign Out'),
         content: const Text('Are you sure you want to sign out?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+          Semantics(
+            identifier: 'cancel-sign-out-button',
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
           ),
           Semantics(
             label: 'confirm-sign-out-button',
+            identifier: 'confirm-sign-out-button',
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);

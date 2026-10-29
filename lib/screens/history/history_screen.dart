@@ -32,18 +32,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.home),
         ),
         title: const Text('Listing History'),
         actions: [
-          TextButton.icon(
-            onPressed: () {
-              context.read<ListingProvider>().reset();
-              context.go(AppRoutes.upload);
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('New Listing'),
+          Semantics(
+            identifier: 'new-listing-button',
+            child: TextButton.icon(
+              onPressed: () {
+                context.read<ListingProvider>().reset();
+                context.go(AppRoutes.upload);
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('New Listing'),
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -110,13 +114,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
               style: TextStyle(color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<ListingProvider>().reset();
-                context.go(AppRoutes.upload);
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Create Your First Listing'),
+            Semantics(
+              identifier: 'create-first-listing-button',
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.read<ListingProvider>().reset();
+                  context.go(AppRoutes.upload);
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Create Your First Listing'),
+              ),
             ),
           ],
         ),
@@ -136,11 +143,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       itemCount: listings.length,
       itemBuilder: (context, index) {
-        return _ListingCard(
-          listing: listings[index],
-          onTap: () => context.go(AppRoutes.results, extra: listings[index].id),
-          onEdit: () => context.go(AppRoutes.editListing, extra: listings[index].id),
-          onDelete: () => _showDeleteDialog(listings[index]),
+        return Semantics(
+          identifier: 'listing-card',
+          child: _ListingCard(
+            listing: listings[index],
+            onTap: () => context.go(AppRoutes.results, extra: listings[index].id),
+            onEdit: () => context.go(AppRoutes.editListing, extra: listings[index].id),
+            onDelete: () => _showDeleteDialog(listings[index]),
+          ),
         );
       },
     );
@@ -153,11 +163,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       itemCount: listings.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        return _ListingCard(
-          listing: listings[index],
-          onTap: () => context.go(AppRoutes.results, extra: listings[index].id),
-          onEdit: () => context.go(AppRoutes.editListing, extra: listings[index].id),
-          onDelete: () => _showDeleteDialog(listings[index]),
+        return Semantics(
+          identifier: 'listing-card',
+          child: _ListingCard(
+            listing: listings[index],
+            onTap: () => context.go(AppRoutes.results, extra: listings[index].id),
+            onEdit: () => context.go(AppRoutes.editListing, extra: listings[index].id),
+            onDelete: () => _showDeleteDialog(listings[index]),
+          ),
         );
       },
     );
@@ -172,27 +185,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
           'Are you sure you want to delete "${listing.generatedTitle ?? listing.productName}"?',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await context.read<ListingProvider>().deleteListing(listing.id!);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Listing deleted'),
-                    backgroundColor: AppTheme.successColor,
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorColor,
+          Semantics(
+            identifier: 'cancel-delete-listing-button',
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            child: const Text('Delete'),
+          ),
+          Semantics(
+            identifier: 'confirm-delete-listing-button',
+            child: ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await context.read<ListingProvider>().deleteListing(listing.id!);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Listing deleted'),
+                      backgroundColor: AppTheme.successColor,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.errorColor,
+              ),
+              child: const Text('Delete'),
+            ),
           ),
         ],
       ),
@@ -417,29 +436,32 @@ class _ActionButton extends StatelessWidget {
         ? AppTheme.secondaryColor.withOpacity(0.15)
         : Colors.transparent;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500,
-                color: color,
+    return Semantics(
+      identifier: 'listing-${label.toLowerCase()}-button',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500,
+                  color: color,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

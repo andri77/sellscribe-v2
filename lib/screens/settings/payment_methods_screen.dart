@@ -45,6 +45,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       appBar: AppBar(
         title: const Text('Payment Methods'),
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
@@ -54,12 +55,15 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           : _paymentMethods.isEmpty
               ? _buildEmptyState()
               : _buildCardList(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddCardSheet,
-        icon: const Icon(Icons.add),
-        label: const Text('Add Card'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
+      floatingActionButton: Semantics(
+        identifier: 'add-card-button',
+        child: FloatingActionButton.extended(
+          onPressed: _showAddCardSheet,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Card'),
+          backgroundColor: AppTheme.primaryColor,
+          foregroundColor: Colors.white,
+        ),
       ),
     );
   }
@@ -325,6 +329,7 @@ class _AddCardSheetState extends State<AddCardSheet> {
               // Card Number
               AppTextField(
                 label: 'Card Number',
+                semanticsLabel: 'card-number-input',
                 controller: _cardNumberController,
                 hint: '1234 5678 9012 3456',
                 keyboardType: TextInputType.number,
@@ -361,6 +366,7 @@ class _AddCardSheetState extends State<AddCardSheet> {
                   Expanded(
                     child: AppTextField(
                       label: 'Expiry Date',
+                      semanticsLabel: 'card-expiry-input',
                       controller: _expiryController,
                       hint: 'MM/YY',
                       keyboardType: TextInputType.number,
@@ -379,6 +385,7 @@ class _AddCardSheetState extends State<AddCardSheet> {
                   Expanded(
                     child: AppTextField(
                       label: 'CVV',
+                      semanticsLabel: 'card-cvv-input',
                       controller: _cvvController,
                       hint: '123',
                       keyboardType: TextInputType.number,
@@ -401,6 +408,7 @@ class _AddCardSheetState extends State<AddCardSheet> {
               // Cardholder Name
               AppTextField(
                 label: 'Cardholder Name',
+                semanticsLabel: 'cardholder-name-input',
                 controller: _nameController,
                 hint: 'John Doe',
                 prefixIcon: Icons.person_outline,
@@ -416,6 +424,7 @@ class _AddCardSheetState extends State<AddCardSheet> {
               // Save Button
               AppButton(
                 text: 'Add Card',
+                semanticsLabel: 'save-card-button',
                 onPressed: _saveCard,
                 isLoading: _isLoading,
                 fullWidth: true,

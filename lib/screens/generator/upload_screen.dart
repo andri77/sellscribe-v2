@@ -95,6 +95,7 @@ class _UploadScreenState extends State<UploadScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.home),
         ),
@@ -148,6 +149,7 @@ class _UploadScreenState extends State<UploadScreen> {
                   children: [
                     Semantics(
                       label: 'skip-upload-button',
+                      identifier: 'skip-upload-button',
                       child: TextButton(
                         onPressed: _selectedImages.isEmpty
                             ? () => context.go(AppRoutes.details, extra: <String>[])
@@ -230,6 +232,7 @@ class _UploadScreenState extends State<UploadScreen> {
   Widget _buildUploadArea() {
     return Semantics(
       label: 'upload-images-button',
+      identifier: 'upload-images-button',
       button: true,
       child: InkWell(
         onTap: _selectedImages.length < AppConfig.maxImagesPerListing

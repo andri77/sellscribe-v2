@@ -102,6 +102,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       appBar: AppBar(
         title: const Text('Edit Profile'),
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),

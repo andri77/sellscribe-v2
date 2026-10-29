@@ -73,6 +73,9 @@ class _AppTextFieldState extends State<AppTextField> {
         ],
         Semantics(
           label: widget.semanticsLabel,
+          // Android puts a text field's label in its hint, which Appium's accessibility-id
+          // lookup can't match; the identifier becomes its resource-id instead.
+          identifier: widget.semanticsLabel,
           textField: widget.semanticsLabel != null,
           child: TextFormField(
           controller: widget.controller,
