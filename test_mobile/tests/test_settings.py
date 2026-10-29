@@ -5,6 +5,10 @@ import pytest
 from pages import HomePage, SettingsPage
 
 
+# First and last name are required to save the profile form
+REQUIRED_NAMES = {"first_name": "Test", "last_name": "User"}
+
+
 @pytest.fixture(scope="function")
 def logged_in_settings(logged_in_home):
     """Settings screen for the signed-in test user"""
@@ -66,7 +70,7 @@ class TestProfileEdit:
         """Test updating first name"""
         profile_page = logged_in_settings.tap_edit_profile()
 
-        profile_page.enter_first_name("John")
+        profile_page.fill_profile(first_name="John", last_name="User")
         settings_page = profile_page.tap_save()
 
         assert settings_page.is_settings_screen_displayed(), \
@@ -76,7 +80,7 @@ class TestProfileEdit:
         """Test updating last name"""
         profile_page = logged_in_settings.tap_edit_profile()
 
-        profile_page.enter_last_name("Doe")
+        profile_page.fill_profile(first_name="Test", last_name="Doe")
         settings_page = profile_page.tap_save()
 
         assert settings_page.is_settings_screen_displayed(), \
@@ -86,7 +90,7 @@ class TestProfileEdit:
         """Test updating mobile number"""
         profile_page = logged_in_settings.tap_edit_profile()
 
-        profile_page.enter_mobile("+1234567890")
+        profile_page.fill_profile(**REQUIRED_NAMES, mobile="+1234567890")
         settings_page = profile_page.tap_save()
 
         assert settings_page.is_settings_screen_displayed(), \
@@ -97,6 +101,7 @@ class TestProfileEdit:
         profile_page = logged_in_settings.tap_edit_profile()
 
         profile_page.fill_profile(
+            **REQUIRED_NAMES,
             address="123 Main St",
             city="Springfield",
             state="IL",
