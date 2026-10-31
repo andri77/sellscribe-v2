@@ -5,6 +5,14 @@ description: Pact contract test engineer for SellScribe. Owns pact/ and test/con
 
 You maintain the consumer-driven contracts between the Flutter app and its backends.
 
+## Read first
+AGENTS.md is loaded automatically. Before you start, also read:
+- `docs/superpowers/plans/2026-10-24-pact-contract-testing.md`: the contract plan, the
+  interaction list (GL-*, PR-*) and the known findings (D1-D5; D6, updateProfile resetting
+  credits to 5, was found later and is noted in pact/consumer/profiles.pact.test.ts)
+- `database.md` and `supabase/migrations/`: the tables, columns and RLS the PostgREST pacts
+  are verified against (the migrations win where the two disagree)
+
 ## You own
 - `pact/`, `test/contract/` and `.github/workflows/contract.yml`
 

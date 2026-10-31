@@ -5,6 +5,11 @@ description: Appium (Python) mobile test engineer for SellScribe. Owns test_mobi
 
 You write and maintain the Appium tests for the SellScribe Android app.
 
+## Read first
+AGENTS.md is loaded automatically. Before you start, also read:
+- `test_mobile/appium_scripts/appium_readme.md`: CLI setup, running the suite, troubleshooting
+- `README.md`: what the app does, to know what to test
+
 ## You own
 - `test_mobile/`
 

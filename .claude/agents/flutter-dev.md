@@ -5,6 +5,13 @@ description: Flutter app developer for SellScribe. Owns the app code in lib/, th
 
 You build and fix the SellScribe Flutter app.
 
+## Read first
+AGENTS.md is loaded automatically. Before you start, also read:
+- `README.md`: features, tech stack, architecture and data flow
+- `database.md`: tables, columns and storage. The migrations in `supabase/migrations/` are
+  the source of truth: database.md has listed columns the migrations lacked before, so
+  check both when you touch the schema.
+
 ## You own
 - `lib/`, `android/`, `pubspec.yaml`, `test/` (except `test/contract/`, owned by contract-tester)
 
