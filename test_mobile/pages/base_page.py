@@ -103,6 +103,10 @@ class BasePage:
 
         The ID sits on Flutter's Semantics wrapper, so tap it to focus the real input
         underneath, then type into the focused (active) element.
+
+        Doesn't hide the keyboard afterwards: the test emulator uses a hardware
+        keyboard, and Appium "hides" a keyboard it believes is showing by pressing Back,
+        which closed bottom sheets and even left the app.
         """
         import time
         self.tap(self.by_id(test_id))
@@ -110,7 +114,6 @@ class BasePage:
         active = self.driver.switch_to.active_element
         active.clear()
         active.send_keys(value)
-        self.hide_keyboard()
         return self
 
     def read_text(self, test_id: str) -> str:
@@ -119,7 +122,11 @@ class BasePage:
         return element.get_attribute('content-desc') or element.text or ''
 
     def hide_keyboard(self):
-        """Hide the soft keyboard if it is showing"""
+        """Hide the soft keyboard if it is showing.
+
+        Caution: Appium does this by pressing Back, so if it misjudges the keyboard as
+        showing it closes sheets or leaves the screen.
+        """
         try:
             if self.driver.is_keyboard_shown():
                 self.driver.hide_keyboard()

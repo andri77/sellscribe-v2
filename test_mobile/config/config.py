@@ -87,6 +87,9 @@ class AndroidConfig(Config):
             # Fixtures launch the app themselves, so a signed-in test can store its
             # session first (tests/conftest.py)
             'appium:autoLaunch': False,
+            # No on-screen keyboard for the whole session. Android 15 shows it even with
+            # the AVD's hardware keyboard, and it covered buttons below the fields.
+            'appium:hideKeyboard': True,
         }
 
 

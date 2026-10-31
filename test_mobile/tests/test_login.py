@@ -112,6 +112,8 @@ class TestLoginValidation:
     def test_login_button_disabled_initially(self, login_page):
         """Test that login button state before input"""
 
+    @pytest.mark.skip(reason="The test emulator uses a hardware keyboard, so there is no soft "
+                             "keyboard to dismiss; Appium's hide (a Back press) can leave the app")
     def test_keyboard_dismissal(self, login_page, test_user):
         """Test that keyboard can be dismissed"""
         login_page.enter_email(test_user["email"])
