@@ -238,7 +238,7 @@ else
     # Check if APK exists
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-    APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-debug.apk"
+    APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-profile.apk"
 
     if [ -f "$APK_PATH" ]; then
         echo "Installing app from: $APK_PATH"
@@ -246,7 +246,7 @@ else
         print_msg "$GREEN" "App installed successfully"
     else
         echo "APK not found at: $APK_PATH"
-        echo "Build the app first: flutter build apk --debug"
+        echo "Build the app first: flutter build apk --profile"
     fi
 fi
 

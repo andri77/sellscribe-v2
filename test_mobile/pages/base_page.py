@@ -70,6 +70,23 @@ class BasePage:
         except TimeoutException:
             return False
 
+    def wait_until_settled(self, locator, timeout: int = 10):
+        """Wait until the element stops moving, e.g. a bottom sheet finishing its slide.
+
+        A tap during the animation uses the element's old position and can land on the
+        scrim behind a sheet, which closes it.
+        """
+        import time
+        previous = None
+        end = time.time() + timeout
+        while time.time() < end:
+            rect = self.find(locator, timeout).rect
+            if rect == previous:
+                return self
+            previous = rect
+            time.sleep(0.3)
+        return self
+
     # Actions
 
     def tap(self, locator, timeout: int = None):

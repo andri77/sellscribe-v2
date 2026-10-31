@@ -26,7 +26,7 @@ Don't edit app code. If a widget has no semantic ID, ask flutter-dev to add one.
 - First-time setup: `./test_mobile/appium_scripts/setup_mobile.sh`
 - All tests: `./test_mobile/appium_scripts/launch_and_test.sh` (starts and stops the emulator
   and Appium); one file: `--test test_login.py`; smoke only: `-m smoke`.
-- After app changes, the APK must be rebuilt (`flutter build apk --debug`) and reinstalled
-  (`adb install -r build/app/outputs/flutter-apk/app-debug.apk`).
+- After app changes, the APK must be rebuilt (`flutter build apk --profile`) and reinstalled
+  (`adb install -r build/app/outputs/flutter-apk/app-profile.apk`).
 - Credentials come from `test_mobile/.env` (see `.env.example`). Sign-up tests skip unless
   `TEST_SIGNUP_DOMAIN` is set.

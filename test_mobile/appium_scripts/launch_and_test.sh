@@ -207,7 +207,7 @@ if [[ "$PLATFORM" == "android" ]]; then
 
   # Install app if needed
   APP_PACKAGE="com.sellscribe.app"
-  APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-debug.apk"
+  APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-profile.apk"
   if ! "${ADB_CMD}" -s "$RUNNING_EMU" shell pm list packages 2>/dev/null | grep -q "$APP_PACKAGE"; then
     if [[ -f "$APK_PATH" ]]; then
       note "Installing SellScribe APK..."
@@ -215,7 +215,7 @@ if [[ "$PLATFORM" == "android" ]]; then
       ok "App installed."
     else
       err "APK not found at $APK_PATH"
-      note "Build first: flutter build apk --debug"
+      note "Build first: flutter build apk --profile"
       exit 1
     fi
   else

@@ -13,6 +13,7 @@ from appium.options.ios import XCUITestOptions
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.config import Config
+from utils.auth import create_session, shared_session, store_session
 from pages import (
     LoginPage, RegisterPage, HomePage, SettingsPage,
     ProfileEditPage, UploadPage, HistoryPage,
@@ -111,16 +112,35 @@ def driver(platform, device_name, app_path):
 
 
 def _wait_for_login_screen(driver, timeout=30):
-    """Block until the login screen is ready.
+    """Launch the app signed out and block until the login screen is ready.
 
-    Each test gets a new session with noReset=False, which clears the app's data, so
-    the app always starts signed out. The splash screen plus Supabase init take a
-    few seconds, hence the generous timeout.
+    Each test gets a new session with noReset=False, which clears the app's data, and
+    autoLaunch=False, so the app starts here. The splash screen plus Supabase init
+    take a few seconds, hence the generous timeout.
     """
+    driver.activate_app(Config.APP_PACKAGE)
     login_page = LoginPage(driver)
     assert login_page.is_login_screen_displayed(timeout=timeout), \
         "Login screen did not appear after app launch"
     return login_page
+
+
+def _open_signed_in(driver, platform, session_json, test_user):
+    """Launch the app already signed in and return the home screen.
+
+    On Android the session is written into the app's storage before launch, so the
+    login screen is skipped, like the web tests' saved storage state. Login and
+    registration tests use the login_page fixtures instead and go through the UI.
+    """
+    if platform == "ios":
+        # No storage injection on iOS yet: sign in through the UI
+        _wait_for_login_screen(driver).login(test_user["email"], test_user["password"])
+    else:
+        store_session(driver, session_json)
+        driver.activate_app(Config.APP_PACKAGE)
+    home_page = HomePage(driver)
+    assert home_page.is_home_screen_displayed(), "Home screen should appear when signed in"
+    return home_page
 
 
 @pytest.fixture(scope="function")
@@ -146,12 +166,16 @@ def login_page(driver):
 
 
 @pytest.fixture(scope="function")
-def logged_in_home(driver, ensure_on_login_screen, test_user):
-    """Signed in as the test user, on the home screen"""
-    ensure_on_login_screen.login(test_user["email"], test_user["password"])
-    home_page = HomePage(driver)
-    assert home_page.is_home_screen_displayed(), "Home screen should appear after sign-in"
-    return home_page
+def logged_in_home(driver, platform, test_user):
+    """Home screen, starting signed in with the session shared across tests"""
+    return _open_signed_in(driver, platform, shared_session(), test_user)
+
+
+@pytest.fixture(scope="function")
+def isolated_logged_in_home(driver, platform, test_user):
+    """Home screen, signed in with a session of its own. Use it for tests that sign
+    out: sign-out revokes the session on the server, which would break the shared one."""
+    return _open_signed_in(driver, platform, create_session(), test_user)
 
 
 @pytest.fixture(scope="function")

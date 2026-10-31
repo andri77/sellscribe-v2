@@ -25,5 +25,5 @@ teammate that owns it.
 ## Check your work
 - `flutter analyze lib` must report no errors.
 - `flutter test` (unit/widget tests).
-- After a change the mobile tests depend on, rebuild the APK with `flutter build apk --debug`
+- After a change the mobile tests depend on, rebuild the APK with `flutter build apk --profile`
   and tell mobile-tester it's ready.

@@ -21,8 +21,9 @@ class PaymentMethodsPage(BasePage):
         return self.is_present(self.by_id(self.ADD_CARD_BUTTON_ID), timeout)
 
     def tap_add_card(self):
-        """Open the add card sheet"""
-        return self.tap(self.by_id(self.ADD_CARD_BUTTON_ID))
+        """Open the add card sheet and wait for it to finish sliding up"""
+        self.tap(self.by_id(self.ADD_CARD_BUTTON_ID))
+        return self.wait_until_settled(self.by_id(self.SAVE_CARD_BUTTON_ID))
 
     def is_add_card_form_displayed(self, timeout: int = 5) -> bool:
         """Check if the add card sheet is open"""

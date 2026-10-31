@@ -11,7 +11,7 @@
 #   Android emulator (AVD)      sellscribe_api35 (Pixel 7)
 #   Appium + UiAutomator2       npm install -g appium
 #   Python 3.13 + test deps     brew install python@3.13, test_mobile/venv
-#   SellScribe debug APK        flutter build apk --debug
+#   SellScribe profile APK       flutter build apk --profile
 #
 # Usage: ./setup_mobile.sh [--skip-apk] [--api N]
 #   --skip-apk   don't build the app APK
@@ -180,12 +180,12 @@ fi
 "$VENV_PY" -m pip install --quiet -r "$SCRIPT_DIR/requirements.txt"
 ok "$("$TEST_DIR/venv/bin/python" --version) venv ready"
 
-# ── 8. SellScribe debug APK ───────────────────────────────────────────────────
-step "8/8" "SellScribe debug APK"
+# ── 8. SellScribe profile APK ──────────────────────────────────────────────────
+step "8/8" "SellScribe profile APK"
 if [[ "$BUILD_APK" == "true" ]]; then
   [[ -f "$PROJECT_DIR/.env" ]] || die "$PROJECT_DIR/.env is missing (the app bundles it); create it, then re-run"
-  (cd "$PROJECT_DIR" && flutter build apk --debug)
-  ok "APK: $PROJECT_DIR/build/app/outputs/flutter-apk/app-debug.apk"
+  (cd "$PROJECT_DIR" && flutter build apk --profile)
+  ok "APK: $PROJECT_DIR/build/app/outputs/flutter-apk/app-profile.apk"
 else
   note "Skipped (--skip-apk)"
 fi

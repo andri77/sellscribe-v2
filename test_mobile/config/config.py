@@ -4,8 +4,11 @@ SellScribe Mobile App Test Configuration
 import os
 from dotenv import load_dotenv
 
-# test_mobile/.env (gitignored; see .env.example)
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
+_TEST_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# test_mobile/.env (gitignored; see .env.example), then the app's own .env for the
+# Supabase URL and anon key (values already set win)
+load_dotenv(os.path.join(_TEST_DIR, '.env'))
+load_dotenv(os.path.join(os.path.dirname(_TEST_DIR), '.env'))
 
 
 class Config:
@@ -28,11 +31,19 @@ class Config:
     # Email domain for accounts the sign-up tests create; unset skips those tests
     SIGNUP_DOMAIN = os.getenv('TEST_SIGNUP_DOMAIN', '')
 
-    # App paths
-    ANDROID_APK_PATH = os.path.join(
+    # Supabase project, for signing in through the API (utils/auth.py)
+    SUPABASE_URL = os.getenv('SUPABASE_URL', '')
+    SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY', '')
+
+    APP_PACKAGE = 'com.sellscribe.app'
+
+    # App paths. The profile build (flutter build apk --profile): a debug build is too
+    # slow on the emulator and UiAutomator2 commands time out. Profile builds are still
+    # debuggable, which utils/auth.py needs to store the session.
+    ANDROID_APK_PATH = os.getenv('ANDROID_APK_PATH', os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-        'build/app/outputs/flutter-apk/app-debug.apk'
-    )
+        'build/app/outputs/flutter-apk/app-profile.apk'
+    ))
     IOS_APP_PATH = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
         'build/ios/iphoneos/Runner.app'
@@ -54,7 +65,6 @@ class AndroidConfig(Config):
     PLATFORM_NAME = 'Android'
     AUTOMATION_NAME = 'UiAutomator2'
     DEVICE_NAME = os.getenv('ANDROID_DEVICE_NAME', 'emulator-5554')
-    APP_PACKAGE = 'com.sellscribe.app'
     APP_ACTIVITY = '.MainActivity'
 
     @classmethod
@@ -74,6 +84,9 @@ class AndroidConfig(Config):
             # UiAutomator2 command fails after 60 s instead of hanging for 4 minutes
             'appium:disableWindowAnimation': True,
             'appium:uiautomator2ServerReadTimeout': 60000,
+            # Fixtures launch the app themselves, so a signed-in test can store its
+            # session first (tests/conftest.py)
+            'appium:autoLaunch': False,
         }
 
 

@@ -36,7 +36,7 @@ Studio is required. It is safe to re-run: each step skips what is already instal
 | 5 | Flutter pointed at that SDK and JDK | `flutter config`, `flutter doctor --android-licenses` |
 | 6 | Appium with the UiAutomator2 driver | `npm install -g appium`, `appium driver install uiautomator2` |
 | 7 | Python 3.13 and the test dependencies (replaces a venv that can't run) | `brew install python@3.13`, `pip install -r requirements.txt` into `test_mobile/venv` |
-| 8 | SellScribe debug APK | `flutter build apk --debug` |
+| 8 | SellScribe profile APK | `flutter build apk --profile` |
 
 The first run downloads several GB and takes a while. Options:
 
@@ -53,7 +53,7 @@ Then run the suite. It boots the emulator and starts Appium, and stops both afte
 ./scripts/run-all-tests.sh                                  # web + API + mobile
 ```
 
-After app changes, rebuild the APK with `flutter build apk --debug` and uninstall the old
+After app changes, rebuild the APK with `flutter build apk --profile` and uninstall the old
 one (`adb uninstall com.sellscribe.app`): the runner only installs the APK when the app
 is missing from the emulator.
 
@@ -247,8 +247,8 @@ adb --version
 ### Step 5: Install the App
 
 ```bash
-# Install the debug APK on connected device/emulator
-adb install /path/to/SellScribe/build/app/outputs/flutter-apk/app-debug.apk
+# Install the profile APK on connected device/emulator
+adb install /path/to/SellScribe/build/app/outputs/flutter-apk/app-profile.apk
 
 # Verify installation
 adb shell pm list packages | grep sellscribe

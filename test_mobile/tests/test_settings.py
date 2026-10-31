@@ -17,6 +17,14 @@ def logged_in_settings(logged_in_home):
     return settings_page
 
 
+@pytest.fixture(scope="function")
+def isolated_logged_in_settings(isolated_logged_in_home):
+    """Settings screen with a session of its own, for tests that sign out"""
+    settings_page = isolated_logged_in_home.tap_settings()
+    assert settings_page.is_settings_screen_displayed()
+    return settings_page
+
+
 @pytest.mark.smoke
 @pytest.mark.settings
 class TestSettingsNavigation:
@@ -303,10 +311,10 @@ class TestSignOut:
         assert logged_in_settings.is_sign_out_dialog_displayed(), \
             "Confirmation dialog should appear"
 
-    def test_sign_out_success(self, logged_in_settings):
-        """Test successful sign out"""
-        logged_in_settings.tap_sign_out()
-        login_page = logged_in_settings.confirm_sign_out()
+    def test_sign_out_success(self, isolated_logged_in_settings):
+        """Test successful sign out (own session: signing out revokes it)"""
+        isolated_logged_in_settings.tap_sign_out()
+        login_page = isolated_logged_in_settings.confirm_sign_out()
 
         assert login_page.is_login_screen_displayed(), \
             "Should return to login screen after sign out"

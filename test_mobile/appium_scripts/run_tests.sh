@@ -238,14 +238,14 @@ if [ "$START_EMULATOR" = true ] && [ "$PLATFORM" = "android" ]; then
         # Install APK if not installed
         APP_PACKAGE="com.sellscribe.app"
         if ! $ANDROID_HOME/platform-tools/adb -s $DEVICE shell pm list packages 2>/dev/null | grep -q "$APP_PACKAGE"; then
-            APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-debug.apk"
+            APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-profile.apk"
             if [ -f "$APK_PATH" ]; then
                 print_msg "$BLUE" "Installing app..."
                 $ANDROID_HOME/platform-tools/adb -s $DEVICE install "$APK_PATH"
                 print_msg "$GREEN" "App installed"
             else
                 print_msg "$YELLOW" "Warning: APK not found at $APK_PATH"
-                print_msg "$YELLOW" "Build the app first: flutter build apk --debug"
+                print_msg "$YELLOW" "Build the app first: flutter build apk --profile"
             fi
         fi
     else
