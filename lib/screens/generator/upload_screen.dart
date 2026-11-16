@@ -23,21 +23,20 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Future<void> _pickImages() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-        withData: true,
-      );
+      // Picks several files; an empty list means the user cancelled
+      final files = await FilePicker.pickFiles(type: FileType.image);
 
-      if (result != null && result.files.isNotEmpty) {
+      final images = <Uint8List>[];
+      final names = <String>[];
+      for (final file in files) {
+        if (_selectedImages.length + images.length >= AppConfig.maxImagesPerListing) break;
+        images.add(await file.readAsBytes());
+        names.add(file.name);
+      }
+      if (images.isNotEmpty && mounted) {
         setState(() {
-          for (final file in result.files) {
-            if (file.bytes != null &&
-                _selectedImages.length < AppConfig.maxImagesPerListing) {
-              _selectedImages.add(file.bytes!);
-              _fileNames.add(file.name);
-            }
-          }
+          _selectedImages.addAll(images);
+          _fileNames.addAll(names);
         });
       }
     } catch (e) {
