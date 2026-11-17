@@ -15,6 +15,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    // Android's default ignore pattern skips hidden files (.*). Since Flutter 3.50 the app's assets
+    // go through it, which dropped the .env asset AppConfig loads at startup. Default minus ".*".
+    androidResources {
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }
+
     defaultConfig {
         applicationId = "com.sellscribe.app"
         minSdk = flutter.minSdkVersion // Required for image_picker and supabase
